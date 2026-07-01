@@ -1,0 +1,155 @@
+/* ============================================================
+   COMPONENTS — Raphael Lüthy Design System
+   CSS ports of the design-system components (Button, Badge,
+   Card, TextLink, Input, Prompt). Monochrome, square, mono type.
+   ============================================================ */
+
+/* --- TextLink ------------------------------------------------ */
+.text-link {
+  color: var(--text-strong);
+  font-family: var(--font-body);
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  transition: var(--transition-colors);
+}
+.text-link:hover {
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+.text-link__arrow {
+  display: inline-block;
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+.text-link:hover .text-link__arrow { transform: translateX(3px); }
+
+/* --- Button -------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  line-height: 1;
+  border: var(--border-hair) solid transparent;
+  border-radius: var(--radius-none);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-colors);
+  /* size: md (default) */
+  padding: 10px 18px;
+  font-size: var(--size-sm);
+}
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn--sm { padding: 6px 12px; font-size: var(--size-xs); }
+.btn--lg { padding: 14px 24px; font-size: var(--size-body); }
+
+.btn--solid { background: var(--fill-solid); color: var(--text-invert); }
+.btn--solid:not(:disabled):hover { background: var(--fill-solid-hover); }
+
+.btn--outline {
+  background: transparent;
+  color: var(--text-strong);
+  border-color: var(--border-strong);
+}
+.btn--outline:not(:disabled):hover {
+  background: var(--fill-ghost-hover);
+  color: var(--text-strong);
+  border-color: var(--border-focus);
+}
+
+.btn--ghost { background: transparent; color: var(--text-body); }
+.btn--ghost:not(:disabled):hover {
+  background: var(--fill-ghost-hover);
+  color: var(--text-strong);
+}
+
+/* --- Card ---------------------------------------------------- */
+.card {
+  background: var(--surface-raised);
+  border: var(--border-hair) solid var(--border-subtle);
+  border-radius: var(--radius-none);
+  padding: var(--space-6);
+  color: var(--text-body);
+  transition: var(--transition-colors);
+}
+.card--interactive { cursor: pointer; }
+.card--interactive:hover { border-color: var(--border-strong); }
+
+/* --- Badge --------------------------------------------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-body);
+  font-size: var(--size-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: var(--radius-none);
+  border: var(--border-hair) solid var(--border-default);
+  background: transparent;
+  color: var(--text-muted);
+}
+.badge--positive { color: var(--signal-positive); border-color: var(--signal-positive); }
+.badge--negative { color: var(--signal-negative); border-color: var(--signal-negative); }
+.badge--warning  { color: var(--signal-warning);  border-color: var(--signal-warning); }
+.badge--info     { color: var(--signal-info);     border-color: var(--signal-info); }
+
+/* --- Input --------------------------------------------------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+.input {
+  font-family: var(--font-body);
+  font-size: var(--size-sm);
+  color: var(--text-strong);
+  background: var(--surface-inset);
+  border: var(--border-hair) solid var(--border-default);
+  border-radius: var(--radius-none);
+  padding: 10px 12px;
+  outline: none;
+  width: 100%;
+  transition: var(--transition-colors);
+}
+.input:focus { border-color: var(--border-focus); }
+.input:disabled { opacity: 0.4; }
+
+/* --- Prompt -------------------------------------------------- */
+.prompt {
+  font-family: var(--font-code);
+  font-size: var(--size-sm);
+  color: var(--text-body);
+  background: var(--surface-inset);
+  border: var(--border-hair) solid var(--border-subtle);
+  border-radius: var(--radius-none);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  line-height: var(--leading-normal);
+}
+.prompt__symbol { color: var(--text-faint); user-select: none; }
+.prompt__body { color: var(--text-strong); }
+.prompt__caret {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.1em;
+  margin-left: 2px;
+  background: var(--text-strong);
+  transform: translateY(0.2em);
+  animation: rl-blink 1s steps(1) infinite;
+}
+@keyframes rl-blink { 50% { opacity: 0; } }

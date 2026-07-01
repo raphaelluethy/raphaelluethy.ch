@@ -1,0 +1,39 @@
+/* ============================================================
+   RADIUS, BORDERS, SHADOW, MOTION
+   The brand is sharp and flat. Corners are square or barely
+   softened; elevation comes from borders and tone, not big
+   diffuse shadows.
+   ============================================================ */
+
+:root {
+  /* --- Radius --------------------------------------------- */
+  --radius-none: 0;        /* default — square, terminal-like */
+  --radius-sm:   2px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+  --radius-full: 9999px;
+
+  /* --- Border widths -------------------------------------- */
+  --border-hair: 1px;
+  --border-thick: 2px;
+
+  /* --- Shadow --------------------------------------------- */
+  /* Minimal. Used rarely — borders do most of the lifting. */
+  --shadow-none: none;
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg:  0 12px 32px rgba(0, 0, 0, 0.55);
+  /* Crisp keyline glow used for focus on dark surfaces */
+  --shadow-focus: 0 0 0 2px var(--ring);
+
+  /* --- Motion --------------------------------------------- */
+  /* Quiet, fast, no bounce. Color/opacity transitions only. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast:  120ms;
+  --duration-base:  180ms;
+  --duration-slow:  280ms;
+  --transition-colors: color var(--duration-base) var(--ease-standard),
+                       background-color var(--duration-base) var(--ease-standard),
+                       border-color var(--duration-base) var(--ease-standard),
+                       opacity var(--duration-base) var(--ease-standard);
+}

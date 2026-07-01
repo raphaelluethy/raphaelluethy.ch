@@ -1,0 +1,45 @@
+/* ============================================================
+   TYPOGRAPHY
+   One typeface: monospace. Everything is mono — headings, body,
+   code. This is the core of the brand's voice: technical, even,
+   typewriter-precise. Weight and size carry the hierarchy.
+   ============================================================ */
+
+:root {
+  /* --- Families -------------------------------------------- */
+  --font-mono: 'Courier Prime', 'Courier New', ui-monospace,
+               'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo,
+               Consolas, monospace;
+  /* Single-family system. Aliases below keep call sites semantic. */
+  --font-display: var(--font-mono);
+  --font-body:    var(--font-mono);
+  --font-code:    var(--font-mono);
+
+  /* --- Weights --------------------------------------------- */
+  --weight-regular: 400;
+  --weight-bold:    700;
+
+  /* --- Type scale (px) ------------------------------------- */
+  /* Mirrors the site's Tailwind scale: 7xl name, 4xl tagline … */
+  --size-display: 72px;  /* hero name            (text-7xl) */
+  --size-h1:      48px;  /* page title           (text-5xl) */
+  --size-h2:      36px;  /* section, tagline     (text-4xl) */
+  --size-h3:      30px;  /* subsection           (text-3xl) */
+  --size-lead:    24px;  /* lead / large list    (text-2xl) */
+  --size-body:    16px;  /* default body         (text-base) */
+  --size-sm:      14px;  /* secondary            (text-sm) */
+  --size-xs:      12px;  /* caption / label      (text-xs) */
+
+  /* --- Line heights ---------------------------------------- */
+  --leading-tight:   1.1;   /* display / headings */
+  --leading-snug:    1.3;
+  --leading-normal:  1.6;   /* body */
+  --leading-relaxed: 1.8;
+
+  /* --- Tracking -------------------------------------------- */
+  /* Mono is wide already; headings tighten, labels open up. */
+  --tracking-tight:  -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.08em;   /* uppercase labels, eyebrows */
+  --tracking-wider:  0.18em;   /* monogram / brand lockup */
+}

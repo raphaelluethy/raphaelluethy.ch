@@ -1,0 +1,94 @@
+/* ============================================================
+   COLORS — Raphael Lüthy Design System
+   Monochrome by design. The brand lives in the zinc scale:
+   near-black surfaces, white ink, gray supporting text.
+   Color is reserved for functional/semantic signals only.
+   ============================================================ */
+
+:root {
+  /* --- Neutral spine (zinc) -------------------------------- */
+  --zinc-50:  #fafafa;
+  --zinc-100: #f4f4f5;
+  --zinc-200: #e4e4e7;
+  --zinc-300: #d4d4d8;
+  --zinc-400: #a1a1aa;
+  --zinc-500: #71717a;
+  --zinc-600: #52525b;
+  --zinc-700: #3f3f46;
+  --zinc-800: #27272a;
+  --zinc-900: #18181b;  /* the brand surface — matches the live site */
+  --zinc-950: #09090b;
+
+  --white: #ffffff;
+  --black: #000000;
+
+  /* --- Functional signals (used sparingly) ----------------- */
+  --signal-positive: #4ade80;
+  --signal-negative: #f87171;
+  --signal-warning:  #fbbf24;
+  --signal-info:     #60a5fa;
+
+  /* ============================================================
+     SEMANTIC ALIASES — default theme is DARK (matches the site)
+     Use these in components, never the raw scale.
+     ============================================================ */
+
+  /* Surfaces */
+  --surface-page:    var(--zinc-900);   /* app/page background */
+  --surface-raised:  var(--zinc-800);   /* cards, panels */
+  --surface-overlay: var(--zinc-950);   /* dialogs, popovers */
+  --surface-inset:   var(--zinc-950);   /* wells, code blocks */
+
+  /* Ink (text) */
+  --text-strong:  var(--white);         /* headings, primary */
+  --text-body:    var(--zinc-300);      /* body copy */
+  --text-muted:   var(--zinc-400);      /* secondary, captions */
+  --text-faint:   var(--zinc-500);      /* disabled, hints */
+  --text-invert:  var(--zinc-900);      /* text on light/white fills */
+
+  /* Lines & borders */
+  --border-subtle: var(--zinc-800);
+  --border-default: var(--zinc-700);
+  --border-strong:  var(--zinc-500);
+  --border-focus:   var(--white);
+
+  /* Interactive fills (monochrome) */
+  --fill-solid:        var(--white);    /* primary button bg */
+  --fill-solid-hover:  var(--zinc-200);
+  --fill-solid-active: var(--zinc-300);
+  --fill-ghost-hover:  var(--zinc-800);
+  --fill-ghost-active: var(--zinc-700);
+
+  /* Focus ring */
+  --ring: var(--white);
+}
+
+/* ------------------------------------------------------------
+   LIGHT THEME — inverse. Opt in with class="theme-light".
+   The brand is dark-first; light is the supporting mode.
+   ------------------------------------------------------------ */
+.theme-light {
+  --surface-page:    var(--zinc-50);
+  --surface-raised:  var(--white);
+  --surface-overlay: var(--white);
+  --surface-inset:   var(--zinc-100);
+
+  --text-strong:  var(--zinc-950);
+  --text-body:    var(--zinc-700);
+  --text-muted:   var(--zinc-500);
+  --text-faint:   var(--zinc-400);
+  --text-invert:  var(--white);
+
+  --border-subtle: var(--zinc-200);
+  --border-default: var(--zinc-300);
+  --border-strong:  var(--zinc-500);
+  --border-focus:   var(--zinc-950);
+
+  --fill-solid:        var(--zinc-900);
+  --fill-solid-hover:  var(--zinc-700);
+  --fill-solid-active: var(--zinc-600);
+  --fill-ghost-hover:  var(--zinc-100);
+  --fill-ghost-active: var(--zinc-200);
+
+  --ring: var(--zinc-950);
+}
