@@ -1,153 +1,213 @@
 /* ============================================================
-   APP LAYOUT — navbar shell + the three screens
-   (Home / Projects / Contact).
+   APP LAYOUT — the terminal window.
+   A single centered terminal panel with two views: home
+   (`whoami`) and projects (`ls -la projects`). Navigating
+   re-types the command and swaps the output; the behavior
+   lives in src/main.ts.
    ============================================================ */
 
-#app {
+/* --- Page shell --------------------------------------------- */
+.term-page {
+  position: relative;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: var(--surface-page);
+  color: var(--text-strong);
+  overflow: hidden;
 }
 
-/* --- Navbar -------------------------------------------------- */
-.navbar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-  padding: var(--space-3) var(--gutter);
-  border-bottom: var(--border-hair) solid var(--border-subtle);
-  position: sticky;
-  top: 0;
-  background: var(--surface-page);
-  z-index: 10;
-}
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-right: auto;
-}
-.nav-brand span {
-  font-size: var(--size-body);
-  color: var(--text-strong);
-  letter-spacing: var(--tracking-tight);
-}
-.nav-item {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-body);
-  font-size: var(--size-sm);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
+/* Top meta: working-directory eyebrow (left) + logo (right). */
+.term-page__path {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   color: var(--text-faint);
-  padding: var(--space-2) 0;
-  border-bottom: var(--border-thick) solid transparent;
+  user-select: none;
+}
+.term-page__logo {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  display: block;
+  opacity: 0.85;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+.term-page__logo:hover { opacity: 1; }
+.term-page__logo img { display: block; }
+
+/* --- Terminal window ---------------------------------------- */
+.term {
+  width: 100%;
+  max-width: 660px;
+  background: var(--surface-raised);
+  border: var(--border-hair) solid var(--border-default);
+  border-radius: 12px; /* bespoke window radius, per the source design */
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Title bar with three traffic-light dots. */
+.term__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--surface-inset);
+  border-bottom: var(--border-hair) solid var(--border-subtle);
+}
+.term__dots { display: flex; align-items: center; gap: 7px; }
+.term__dot {
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-full);
+}
+.term__dot--1 { background: var(--border-strong); }
+.term__dot--2 { background: var(--text-faint); }
+.term__dot--3 { background: var(--text-muted); }
+
+.term__body {
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+  padding: 32px 40px 40px;
+}
+
+/* --- Command line ------------------------------------------- */
+.term-command {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 10px;
+  margin-bottom: 26px;
+  font-size: clamp(15px, 1.8vw, 18px);
+}
+.term-command__user { color: var(--text-faint); white-space: nowrap; }
+.term-command__input { color: var(--text-strong); white-space: nowrap; }
+.term-command__cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 0.95em;
+  margin-left: 3px;
+  background: var(--text-muted);
+  transform: translateY(0.12em);
+  animation: rl-cursor-blink 1.05s infinite;
+}
+/* Hard on/off blink — the 50% cliff does the stepping. */
+@keyframes rl-cursor-blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+/* --- Output ------------------------------------------------- */
+.term-output {
+  opacity: 1;
+  transition: opacity 160ms ease;
+}
+.term-view[hidden] { display: none; }
+
+/* --- Home view (whoami) ------------------------------------- */
+.term-home__name {
+  margin: 0 0 6px;
+  font-size: clamp(40px, 7vw, 64px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.term-home__role {
+  margin: 0 0 28px;
+  font-size: clamp(18px, 3vw, 28px);
+  line-height: 1.15;
+  font-weight: var(--weight-regular);
+  color: var(--text-muted);
+}
+.term-divider {
+  height: 1px;
+  margin: 0 0 28px;
+  background: var(--border-subtle);
+}
+.term-home__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 28px 48px;
+  margin-bottom: 30px;
+}
+.term-block__label {
+  margin-bottom: 14px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+.term-facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 24px;
+  row-gap: 10px;
+  margin: 0;
+  font-size: clamp(15px, 1.6vw, 17px);
+}
+.term-facts dt { color: var(--text-faint); }
+.term-facts dd { margin: 0; color: var(--text-body); }
+.term-links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  font-size: 16px;
+}
+
+/* --- Projects view (ls -la projects) ------------------------ */
+.term-ls {
+  margin-bottom: 30px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.term-ls__total { margin-bottom: 14px; color: var(--text-faint); }
+.term-ls__rows { display: flex; flex-direction: column; gap: 13px; }
+.term-ls__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+.term-ls__perm { min-width: 92px; color: var(--text-faint); }
+.term-ls__desc { color: var(--text-muted); }
+
+/* --- Run / back button -------------------------------------- */
+.term-run {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  background: var(--surface-inset);
+  border: var(--border-hair) solid var(--border-subtle);
+  border-radius: var(--radius-none);
+  cursor: pointer;
+  user-select: none;
   transition: var(--transition-colors);
 }
-.nav-item:hover { color: var(--text-body); }
-.nav-item[aria-current="true"] {
-  color: var(--text-strong);
-  border-bottom-color: var(--text-strong);
+.term-run:hover { border-color: var(--border-default); }
+.term-run:focus-visible {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-focus);
+}
+.term-run__symbol { color: var(--text-faint); }
+.term-run__cmd { color: var(--text-strong); white-space: nowrap; }
+.term-run__hint {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  white-space: nowrap;
 }
 
-/* --- Screens ------------------------------------------------- */
-.screen { flex: 1; position: relative; }
-.screen[hidden] { display: none; }
-
-/* --- Home ---------------------------------------------------- */
-.home {
-  position: relative;
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-.home__center {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-16) var(--gutter);
-}
-.home__main { max-width: var(--content-max); width: 100%; }
-.home__name {
-  font-size: var(--size-display);
-  text-align: center;
-  margin-bottom: var(--space-2);
-  letter-spacing: var(--tracking-tight);
-}
-.home__tagline {
-  font-size: var(--size-h2);
-  color: var(--text-muted);
-  text-align: center;
-  margin-bottom: var(--space-12);
-  font-weight: var(--weight-regular);
-}
-.home__about-title {
-  font-size: var(--size-h3);
-  margin-bottom: var(--space-4);
-}
-.home__about-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  font-size: var(--size-lead);
-  color: var(--text-body);
-}
-.home__footer {
-  padding: var(--space-6) var(--gutter);
-  text-align: center;
-}
-.home__links {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-6);
-  flex-wrap: wrap;
-}
-
-/* --- Shared page shell (Projects & Contact) ------------------ */
-.projects,
-.contact {
-  padding: var(--space-20) var(--gutter);
-  margin: 0 auto;
-}
-.projects__title,
-.contact__title { font-size: var(--size-h1); margin-top: var(--space-3); }
-
-/* --- Projects ------------------------------------------------ */
-.projects { max-width: var(--content-wide); }
-.projects__title { margin-bottom: var(--space-10); }
-.projects__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-4);
-}
-.project-card__head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
-}
-.project-card__head h3 { font-size: var(--size-lead); }
-.project-card__desc {
-  color: var(--text-muted);
-  font-size: var(--size-sm);
-  margin-bottom: var(--space-4);
-  line-height: var(--leading-normal);
-}
-.project-card__tags { display: flex; gap: var(--space-2); flex-wrap: wrap; }
-.projects__more { margin-top: var(--space-10); }
-
-/* --- Contact ------------------------------------------------- */
-.contact { max-width: var(--content-max); }
-.contact__title { margin-bottom: var(--space-4); }
-.contact__lead { color: var(--text-muted); margin-bottom: var(--space-8); }
-.contact__form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-5);
+/* --- Narrow screens ----------------------------------------- */
+@media (max-width: 480px) {
+  .term__body { padding: 24px 22px 28px; }
 }

@@ -14,121 +14,111 @@
     <title>raphaelluethy.ch — Personal Website</title>
   </head>
   <body>
-    <div id="app">
-      <!-- Navbar -->
-      <nav class="navbar">
-        <a class="nav-brand" href="https://github.com/raphaelluethy">
-          <img src="/logo.png" width="28" height="28" alt="Raphael Lüthy" />
-          <span>Raphael Lüthy</span>
-        </a>
-        <button class="nav-item" data-nav="home" aria-current="true">Home</button>
-        <button class="nav-item" data-nav="projects" aria-current="false">Projects</button>
-        <button class="nav-item" data-nav="contact" aria-current="false">Contact</button>
-      </nav>
+    <div id="app" class="term-page">
+      <!-- Top meta: working directory (left) + logo (right) -->
+      <div class="term-page__path">~/raphaelluethy.ch</div>
+      <a
+        class="term-page__logo"
+        href="https://github.com/raphaelluethy"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src="/logo.png" width="36" height="36" alt="Raphael Lüthy" />
+      </a>
 
-      <!-- Home -->
-      <section class="screen" data-route="home">
-        <div class="home">
-          <div class="home__center">
-            <main class="home__main">
-              <h1 class="home__name">Raphael Lüthy</h1>
-              <h2 class="home__tagline">Software Engineer — MSE Student</h2>
-
-              <section>
-                <h3 class="home__about-title">About me</h3>
-                <ul class="home__about-list">
-                  <li>• Nationality: Swiss</li>
-                  <li>• Languages: German, English</li>
-                  <li>• Full Stack Developer</li>
-                </ul>
-              </section>
-            </main>
-          </div>
-
-          <footer class="home__footer">
-            <div class="home__links">
-              <a class="text-link" href="https://github.com/raphaelluethy/raphaelluethy.ch" target="_blank" rel="noopener noreferrer">Repository</a>
-              <a class="text-link" href="https://github.com/raphaelluethy" target="_blank" rel="noopener noreferrer">GitHub</a>
-              <a class="text-link" href="https://www.linkedin.com/in/raphaelluethy/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            </div>
-          </footer>
-        </div>
-      </section>
-
-      <!-- Projects -->
-      <section class="screen" data-route="projects" hidden>
-        <div class="projects">
-          <span class="eyebrow">// projects</span>
-          <h1 class="projects__title">Selected work</h1>
-          <div class="projects__grid">
-            <article class="card card--interactive">
-              <div class="project-card__head">
-                <h3>raphaelluethy.ch</h3>
-                <span class="badge badge--positive">Live</span>
-              </div>
-              <p class="project-card__desc">This personal site. Vite + TypeScript, monochrome.</p>
-              <div class="project-card__tags">
-                <span class="badge">TypeScript</span>
-                <span class="badge">Vite</span>
-              </div>
-            </article>
-
-            <article class="card card--interactive">
-              <div class="project-card__head">
-                <h3>bngr.ch</h3>
-                <span class="badge badge--info">Active</span>
-              </div>
-              <p class="project-card__desc">Side venture — linked from the footer.</p>
-              <div class="project-card__tags">
-                <span class="badge">Web</span>
-              </div>
-            </article>
-
-            <article class="card card--interactive">
-              <div class="project-card__head">
-                <h3>MSE Thesis</h3>
-                <span class="badge badge--warning">WIP</span>
-              </div>
-              <p class="project-card__desc">Master of Science in Engineering research project.</p>
-              <div class="project-card__tags">
-                <span class="badge">Research</span>
-              </div>
-            </article>
-          </div>
-          <div class="projects__more">
-            <a class="text-link" href="https://github.com/raphaelluethy" target="_blank" rel="noopener noreferrer">
-              More on GitHub<span class="text-link__arrow" aria-hidden="true">→</span>
-            </a>
+      <!-- Terminal window -->
+      <main class="term">
+        <!-- Title bar -->
+        <div class="term__bar">
+          <div class="term__dots">
+            <span class="term__dot term__dot--1"></span>
+            <span class="term__dot term__dot--2"></span>
+            <span class="term__dot term__dot--3"></span>
           </div>
         </div>
-      </section>
 
-      <!-- Contact -->
-      <section class="screen" data-route="contact" hidden>
-        <div class="contact">
-          <span class="eyebrow">// contact</span>
-          <h1 class="contact__title">Get in touch</h1>
-          <p class="contact__lead">Drop a line. I read everything; replies are mono.</p>
+        <!-- Body -->
+        <div class="term__body">
+          <!-- Command line (retyped on each navigation) -->
+          <div class="term-command" aria-hidden="true">
+            <span class="term-command__user">raphael@luethy ~ %</span>
+            <span class="term-command__input"
+              ><span class="term-command__typed" data-typed></span
+              ><span class="term-command__cursor"></span
+            ></span>
+          </div>
 
-          <form class="contact__form" data-contact-form>
-            <div class="field">
-              <label class="eyebrow" for="contact-name">Name</label>
-              <input class="input" id="contact-name" name="name" placeholder="Your name" required />
+          <!-- Output (flushes and re-reveals on navigation) -->
+          <div class="term-output" data-output>
+            <!-- Home — whoami -->
+            <div class="term-view" data-view="home">
+              <h1 class="term-home__name">Raphael Lüthy</h1>
+              <p class="term-home__role">Software Engineer — MSE Student</p>
+
+              <div class="term-divider"></div>
+
+              <div class="term-home__grid">
+                <section class="term-block">
+                  <div class="term-block__label">// about</div>
+                  <dl class="term-facts">
+                    <dt>nationality</dt>
+                    <dd>Swiss</dd>
+                    <dt>languages</dt>
+                    <dd>German, English</dd>
+                    <dt>role</dt>
+                    <dd>Full Stack Developer</dd>
+                  </dl>
+                </section>
+
+                <section class="term-block">
+                  <div class="term-block__label">// connect</div>
+                  <div class="term-links">
+                    <a class="text-link" href="https://github.com/raphaelluethy" target="_blank" rel="noopener noreferrer">GitHub<span class="text-link__arrow" aria-hidden="true">→</span></a>
+                    <a class="text-link" href="https://www.linkedin.com/in/raphaelluethy/" target="_blank" rel="noopener noreferrer">LinkedIn<span class="text-link__arrow" aria-hidden="true">→</span></a>
+                    <a class="text-link" href="https://github.com/raphaelluethy/raphaelluethy.ch" target="_blank" rel="noopener noreferrer">Repository<span class="text-link__arrow" aria-hidden="true">→</span></a>
+                  </div>
+                </section>
+              </div>
+
+              <button class="term-run" type="button" data-nav="projects">
+                <span class="term-run__symbol">$</span>
+                <span class="term-run__cmd">ls -la projects</span>
+                <span class="term-run__hint">→ run</span>
+              </button>
             </div>
-            <div class="field">
-              <label class="eyebrow" for="contact-email">Email</label>
-              <input class="input" id="contact-email" name="email" type="email" placeholder="you@example.com" required />
+
+            <!-- Projects — ls -la projects -->
+            <div class="term-view" data-view="projects" hidden>
+              <div class="term-ls">
+                <div class="term-ls__total">total 3</div>
+                <div class="term-ls__rows">
+                  <div class="term-ls__row">
+                    <span class="term-ls__perm">drwxr-xr-x</span>
+                    <a class="text-link" href="https://github.com/raphaelluethy/raphaelluethy.ch" target="_blank" rel="noopener noreferrer">raphaelluethy.ch<span class="text-link__arrow" aria-hidden="true">→</span></a>
+                    <span class="term-ls__desc">— personal site &amp; design system</span>
+                  </div>
+                  <div class="term-ls__row">
+                    <span class="term-ls__perm">drwxr-xr-x</span>
+                    <a class="text-link" href="https://bngr.ch" target="_blank" rel="noopener noreferrer">bngr.ch<span class="text-link__arrow" aria-hidden="true">→</span></a>
+                    <span class="term-ls__desc">— side project</span>
+                  </div>
+                  <div class="term-ls__row">
+                    <span class="term-ls__perm">drwxr-xr-x</span>
+                    <a class="text-link" href="https://github.com/raphaelluethy" target="_blank" rel="noopener noreferrer">add-a-project<span class="text-link__arrow" aria-hidden="true">→</span></a>
+                    <span class="term-ls__desc">— edit me</span>
+                  </div>
+                </div>
+              </div>
+
+              <button class="term-run" type="button" data-nav="home">
+                <span class="term-run__symbol">$</span>
+                <span class="term-run__cmd">cd ~</span>
+                <span class="term-run__hint">← back home</span>
+              </button>
             </div>
-            <div class="field">
-              <label class="eyebrow" for="contact-message">Message</label>
-              <input class="input" id="contact-message" name="message" placeholder="What's up?" />
-            </div>
-            <div>
-              <button class="btn btn--solid" type="submit">Send message</button>
-            </div>
-          </form>
+          </div>
         </div>
-      </section>
+      </main>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
