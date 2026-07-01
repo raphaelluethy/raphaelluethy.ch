@@ -5,7 +5,7 @@
      1. flush   — the current output fades out
      2. retype  — the new command is typed character by character
      3. reveal  — the new output fades in
-   The active view is mirrored to the URL hash so refresh, deep-links,
+   The active view is mirrored to the URL path so refresh, deep-links,
    and the browser Back button all work. `prefers-reduced-motion` skips
    the typing and fades. */
 
@@ -91,24 +91,25 @@ function navigate(next: View): void {
   else flushTimer = window.setTimeout(swap, FLUSH_DELAY);
 }
 
-function viewFromHash(): View {
-  const value = location.hash.replace(/^#\/?/, "");
+function viewFromPath(): View {
+  const value = location.pathname.replace(/^\/+|\/+$/g, "");
   return isView(value) ? value : "home";
 }
 
-// The run / back buttons drive navigation through the URL hash, so a
-// single hashchange handler is the one place that swaps views.
 for (const button of document.querySelectorAll<HTMLElement>("[data-nav]")) {
   button.addEventListener("click", () => {
     const target = button.dataset.nav;
-    if (target && isView(target)) location.hash = `#/${target}`;
+    if (!target || !isView(target) || target === current) return;
+    const path = target === "home" ? "/" : `/${target}`;
+    history.pushState({ view: target }, "", path);
+    navigate(target);
   });
 }
 
-window.addEventListener("hashchange", () => navigate(viewFromHash()));
+window.addEventListener("popstate", () => navigate(viewFromPath()));
 
 // Boot: honor a deep-linked view, then run its command on top.
-current = viewFromHash();
+current = viewFromPath();
 showView(current);
 setOutputVisible(true);
 typeCommand(current);
