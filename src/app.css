@@ -1,0 +1,153 @@
+/* ============================================================
+   APP LAYOUT — navbar shell + the three screens
+   (Home / Projects / Contact).
+   ============================================================ */
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Navbar -------------------------------------------------- */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-3) var(--gutter);
+  border-bottom: var(--border-hair) solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  background: var(--surface-page);
+  z-index: 10;
+}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-right: auto;
+}
+.nav-brand span {
+  font-size: var(--size-body);
+  color: var(--text-strong);
+  letter-spacing: var(--tracking-tight);
+}
+.nav-item {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: var(--size-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-faint);
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-thick) solid transparent;
+  transition: var(--transition-colors);
+}
+.nav-item:hover { color: var(--text-body); }
+.nav-item[aria-current="true"] {
+  color: var(--text-strong);
+  border-bottom-color: var(--text-strong);
+}
+
+/* --- Screens ------------------------------------------------- */
+.screen { flex: 1; position: relative; }
+.screen[hidden] { display: none; }
+
+/* --- Home ---------------------------------------------------- */
+.home {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.home__center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--gutter);
+}
+.home__main { max-width: var(--content-max); width: 100%; }
+.home__name {
+  font-size: var(--size-display);
+  text-align: center;
+  margin-bottom: var(--space-2);
+  letter-spacing: var(--tracking-tight);
+}
+.home__tagline {
+  font-size: var(--size-h2);
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: var(--space-12);
+  font-weight: var(--weight-regular);
+}
+.home__about-title {
+  font-size: var(--size-h3);
+  margin-bottom: var(--space-4);
+}
+.home__about-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--size-lead);
+  color: var(--text-body);
+}
+.home__footer {
+  padding: var(--space-6) var(--gutter);
+  text-align: center;
+}
+.home__links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+/* --- Shared page shell (Projects & Contact) ------------------ */
+.projects,
+.contact {
+  padding: var(--space-20) var(--gutter);
+  margin: 0 auto;
+}
+.projects__title,
+.contact__title { font-size: var(--size-h1); margin-top: var(--space-3); }
+
+/* --- Projects ------------------------------------------------ */
+.projects { max-width: var(--content-wide); }
+.projects__title { margin-bottom: var(--space-10); }
+.projects__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+.project-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.project-card__head h3 { font-size: var(--size-lead); }
+.project-card__desc {
+  color: var(--text-muted);
+  font-size: var(--size-sm);
+  margin-bottom: var(--space-4);
+  line-height: var(--leading-normal);
+}
+.project-card__tags { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.projects__more { margin-top: var(--space-10); }
+
+/* --- Contact ------------------------------------------------- */
+.contact { max-width: var(--content-max); }
+.contact__title { margin-bottom: var(--space-4); }
+.contact__lead { color: var(--text-muted); margin-bottom: var(--space-8); }
+.contact__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}

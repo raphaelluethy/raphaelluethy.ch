@@ -1,0 +1,59 @@
+/* ============================================================
+   BASE — minimal resets + brand defaults.
+   Not a framework. Just enough so raw HTML looks on-brand.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  line-height: var(--leading-normal);
+  color: var(--text-body);
+  background: var(--surface-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Headings — mono, tight, white */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--text-strong);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-regular);
+  margin: 0;
+}
+h1 { font-size: var(--size-h1); }
+h2 { font-size: var(--size-h2); }
+h3 { font-size: var(--size-h3); }
+
+p { margin: 0; }
+
+a {
+  color: var(--text-strong);
+  text-decoration: none;
+  transition: var(--transition-colors);
+}
+a:hover { color: var(--text-muted); }
+
+code, pre, kbd {
+  font-family: var(--font-code);
+  font-size: 0.9em;
+}
+
+::selection {
+  background: var(--white);
+  color: var(--zinc-900);
+}
+
+/* An eyebrow / label utility used across cards and components */
+.eyebrow {
+  font-size: var(--size-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-muted);
+}
