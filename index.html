@@ -1,126 +1,164 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap"
-    />
-    <link rel="stylesheet" href="/src/styles.css" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <title>raphaelluethy.ch — Personal Website</title>
-  </head>
-  <body>
-    <div id="app" class="term-page">
-      <!-- Top meta: working directory (left) + logo (right) -->
-      <div class="term-page__path">~/raphaelluethy.ch</div>
-      <a
-        class="term-page__logo"
-        href="https://github.com/raphaelluethy"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <img src="/logo.png" width="36" height="36" alt="Raphael Lüthy" />
-      </a>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        />
+        <link rel="stylesheet" href="/src/styles.css" />
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <title>raphaelluethy.ch — Personal Website</title>
+    </head>
+    <body>
+        <div id="app" class="term-page">
+            <!-- Top meta: working directory (left) + logo (right) -->
+            <div class="term-page__path">~/raphaelluethy.ch</div>
+            <a
+                class="term-page__logo"
+                href="https://github.com/raphaelluethy"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                <img src="/logo.png" width="36" height="36" alt="Raphael Lüthy" />
+            </a>
 
-      <!-- Terminal window -->
-      <main class="term">
-        <!-- Title bar -->
-        <div class="term__bar">
-          <div class="term__dots">
-            <span class="term__dot term__dot--1"></span>
-            <span class="term__dot term__dot--2"></span>
-            <span class="term__dot term__dot--3"></span>
-          </div>
-        </div>
-
-        <!-- Body -->
-        <div class="term__body">
-          <!-- Command line (retyped on each navigation) -->
-          <div class="term-command" aria-hidden="true">
-            <span class="term-command__user">raphael@luethy ~ %</span>
-            <span class="term-command__input"
-              ><span class="term-command__typed" data-typed></span
-              ><span class="term-command__cursor"></span
-            ></span>
-          </div>
-
-          <!-- Output (flushes and re-reveals on navigation) -->
-          <div class="term-output" data-output>
-            <!-- Home — whoami -->
-            <div class="term-view" data-view="home">
-              <h1 class="term-home__name">Raphael Lüthy</h1>
-              <p class="term-home__role">Software Engineer — MSE Student</p>
-
-              <div class="term-divider"></div>
-
-              <div class="term-home__grid">
-                <section class="term-block">
-                  <div class="term-block__label">// about</div>
-                  <dl class="term-facts">
-                    <dt>nationality</dt>
-                    <dd>Swiss</dd>
-                    <dt>languages</dt>
-                    <dd>German, English</dd>
-                    <dt>role</dt>
-                    <dd>Full Stack Developer</dd>
-                  </dl>
-                </section>
-
-                <section class="term-block">
-                  <div class="term-block__label">// connect</div>
-                  <div class="term-links">
-                    <a class="text-link" href="https://github.com/raphaelluethy" target="_blank" rel="noopener noreferrer">GitHub<span class="text-link__arrow" aria-hidden="true">→</span></a>
-                    <a class="text-link" href="https://www.linkedin.com/in/raphaelluethy/" target="_blank" rel="noopener noreferrer">LinkedIn<span class="text-link__arrow" aria-hidden="true">→</span></a>
-                    <a class="text-link" href="https://github.com/raphaelluethy/raphaelluethy.ch" target="_blank" rel="noopener noreferrer">Repository<span class="text-link__arrow" aria-hidden="true">→</span></a>
-                  </div>
-                </section>
-              </div>
-
-              <button class="term-run" type="button" data-nav="projects">
-                <span class="term-run__symbol">$</span>
-                <span class="term-run__cmd">ls -la projects</span>
-                <span class="term-run__hint">→ run</span>
-              </button>
-            </div>
-
-            <!-- Projects — ls -la projects -->
-            <div class="term-view" data-view="projects" hidden>
-              <div class="term-ls">
-                <div class="term-ls__total">total 3</div>
-                <div class="term-ls__rows">
-                  <div class="term-ls__row">
-                    <span class="term-ls__perm">drwxr-xr-x</span>
-                    <a class="text-link" href="https://github.com/raphaelluethy/raphaelluethy.ch" target="_blank" rel="noopener noreferrer">raphaelluethy.ch<span class="text-link__arrow" aria-hidden="true">→</span></a>
-                    <span class="term-ls__desc">— personal site &amp; design system</span>
-                  </div>
-                  <div class="term-ls__row">
-                    <span class="term-ls__perm">drwxr-xr-x</span>
-                    <a class="text-link" href="https://bngr.ch" target="_blank" rel="noopener noreferrer">bngr.ch<span class="text-link__arrow" aria-hidden="true">→</span></a>
-                    <span class="term-ls__desc">— side project</span>
-                  </div>
-                  <div class="term-ls__row">
-                    <span class="term-ls__perm">drwxr-xr-x</span>
-                    <a class="text-link" href="https://github.com/raphaelluethy" target="_blank" rel="noopener noreferrer">add-a-project<span class="text-link__arrow" aria-hidden="true">→</span></a>
-                    <span class="term-ls__desc">— edit me</span>
-                  </div>
+            <!-- Terminal window -->
+            <main class="term">
+                <!-- Title bar -->
+                <div class="term__bar">
+                    <div class="term__dots">
+                        <span class="term__dot term__dot--1"></span>
+                        <span class="term__dot term__dot--2"></span>
+                        <span class="term__dot term__dot--3"></span>
+                    </div>
                 </div>
-              </div>
 
-              <button class="term-run" type="button" data-nav="home">
-                <span class="term-run__symbol">$</span>
-                <span class="term-run__cmd">cd ~</span>
-                <span class="term-run__hint">← back home</span>
-              </button>
-            </div>
-          </div>
+                <!-- Body -->
+                <div class="term__body">
+                    <!-- Command line (retyped on each navigation) -->
+                    <div class="term-command" aria-hidden="true">
+                        <span class="term-command__user">raphael@luethy ~ %</span>
+                        <span class="term-command__input"
+                            ><span class="term-command__typed" data-typed></span
+                            ><span class="term-command__cursor"></span
+                        ></span>
+                    </div>
+
+                    <!-- Output (flushes and re-reveals on navigation) -->
+                    <div class="term-output" data-output>
+                        <!-- Home — whoami -->
+                        <div class="term-view" data-view="home">
+                            <h1 class="term-home__name">Raphael Lüthy</h1>
+                            <p class="term-home__role">Software Engineer — MSE Student</p>
+
+                            <div class="term-divider"></div>
+
+                            <div class="term-home__grid">
+                                <section class="term-block">
+                                    <div class="term-block__label">// about</div>
+                                    <dl class="term-facts">
+                                        <dt>nationality</dt>
+                                        <dd>Swiss</dd>
+                                        <dt>languages</dt>
+                                        <dd>German, English</dd>
+                                        <dt>role</dt>
+                                        <dd>Full Stack Developer</dd>
+                                    </dl>
+                                </section>
+
+                                <section class="term-block">
+                                    <div class="term-block__label">// connect</div>
+                                    <div class="term-links">
+                                        <a
+                                            class="text-link"
+                                            href="https://github.com/raphaelluethy"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >GitHub<span class="text-link__arrow" aria-hidden="true">→</span></a
+                                        >
+                                        <a
+                                            class="text-link"
+                                            href="https://www.linkedin.com/in/raphaelluethy/"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >LinkedIn<span class="text-link__arrow" aria-hidden="true">→</span></a
+                                        >
+                                        <a
+                                            class="text-link"
+                                            href="https://github.com/raphaelluethy/raphaelluethy.ch"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >Repository<span class="text-link__arrow" aria-hidden="true">→</span></a
+                                        >
+                                    </div>
+                                </section>
+                            </div>
+
+                            <button class="term-run" type="button" data-nav="projects">
+                                <span class="term-run__symbol">$</span>
+                                <span class="term-run__cmd">ls -la projects</span>
+                                <span class="term-run__hint">→ run</span>
+                            </button>
+                        </div>
+
+                        <!-- Projects — ls -la projects -->
+                        <div class="term-view" data-view="projects" hidden>
+                            <div class="term-ls">
+                                <div class="term-ls__total">total 3</div>
+                                <div class="term-ls__rows">
+                                    <div class="term-ls__row">
+                                        <span class="term-ls__perm">drwxr-xr-x</span>
+                                        <a
+                                            class="text-link"
+                                            href="https://github.com/raphaelluethy/raphaelluethy.ch"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >raphaelluethy.ch<span class="text-link__arrow" aria-hidden="true"
+                                                >→</span
+                                            ></a
+                                        >
+                                        <span class="term-ls__desc">— personal site &amp; design system</span>
+                                    </div>
+                                    <div class="term-ls__row">
+                                        <span class="term-ls__perm">drwxr-xr-x</span>
+                                        <a
+                                            class="text-link"
+                                            href="https://bngr.ch"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >bngr.ch<span class="text-link__arrow" aria-hidden="true">→</span></a
+                                        >
+                                        <span class="term-ls__desc">— add !bangs to your own search engine</span>
+                                    </div>
+                                    <div class="term-ls__row">
+                                        <span class="term-ls__perm">drwxr-xr-x</span>
+                                        <a
+                                            class="text-link"
+                                            href="https://github.com/raphaelluethy"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >Check out my Github</a
+                                        >
+                                        <span class="term-ls__desc">— click me</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="term-run" type="button" data-nav="home">
+                                <span class="term-run__symbol">$</span>
+                                <span class="term-run__cmd">cd ~</span>
+                                <span class="term-run__hint">← back home</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
-      </main>
-    </div>
 
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
 </html>
