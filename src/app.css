@@ -10,6 +10,7 @@
 .term-page {
   position: relative;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -209,5 +210,30 @@
 
 /* --- Narrow screens ----------------------------------------- */
 @media (max-width: 480px) {
+  /* Fit the visible mobile viewport (svh ignores browser chrome)
+     and clear the absolutely positioned logo above the pane. */
+  .term-page {
+    height: 100svh;
+    min-height: 100svh;
+    max-height: 100svh;
+    padding: 72px 16px 20px;
+    align-items: stretch;
+  }
+
+  .term-page__path {
+    top: 18px;
+    left: 16px;
+  }
+
+  .term-page__logo {
+    top: 14px;
+    right: 16px;
+  }
+
+  .term {
+    max-height: 100%;
+    overflow-y: auto;
+  }
+
   .term__body { padding: 24px 22px 28px; }
 }
