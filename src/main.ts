@@ -4,6 +4,7 @@ import { navigateTo, parseRoute } from "./router";
 import { bindHomePage, renderHomePage } from "./pages/home";
 import { renderBlogIndexPage, renderBlogPostPage } from "./pages/blog";
 import { escapeHtml, renderPrompt } from "./utils/html";
+import { bindVimKeymaps } from "./utils/vim";
 
 type Theme = "dark" | "light";
 
@@ -148,20 +149,6 @@ if (appRoot) {
     }
 
     const headerHeight = headerEl?.offsetHeight ?? 56;
-
-    if (sectionId === "timeline") {
-      const scrollEl = sectionEl.querySelector<HTMLElement>("[data-tl-scroll]");
-      if (scrollEl?.classList.contains("is-scrolly")) {
-        const glTop = Number(scrollEl.dataset.glTop) || headerHeight + 24;
-        const targetY = Math.max(
-          0,
-          Math.round(scrollEl.getBoundingClientRect().top + window.scrollY - glTop + 1)
-        );
-        window.scrollTo({ top: targetY, behavior });
-        return;
-      }
-    }
-
     const targetY = Math.max(
       0,
       Math.round(sectionEl.getBoundingClientRect().top + window.scrollY - headerHeight)
@@ -249,5 +236,6 @@ if (appRoot) {
 
   window.addEventListener("popstate", () => renderCurrentRoute(false));
 
+  bindVimKeymaps();
   renderCurrentRoute(false);
 }

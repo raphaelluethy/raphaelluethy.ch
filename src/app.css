@@ -211,10 +211,6 @@
 
 /* ---------- Timeline: a `git log --graph` of work and education ---------- */
 
-.gl-stage > .prompt {
-  margin-bottom: var(--space-6);
-}
-
 .gl {
   /* Branch colours: work takes the accent, education the neutral ink. */
   --rail-work: var(--accent);
@@ -417,7 +413,7 @@
 }
 
 /* Detail panel: every entry occupies the same grid cell, so swapping
-   entries keeps the panel's height; only unfolding details grows it. */
+   entries keeps the panel's height without layout shift. */
 .tl-panel {
   position: relative;
   display: grid;
@@ -426,53 +422,11 @@
   border-left: 1px solid var(--line-subtle);
 }
 
-/* Continuous scroll-progress hairline along the panel divider in scrolly mode. */
-.gl-scroll.is-scrolly .tl-panel::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -1px;
-  width: 2px;
-  height: 100%;
-  background-color: var(--accent);
-  transform-origin: top;
-  transform: scaleY(var(--gl-progress, 0));
-  pointer-events: none;
-}
-
 @media (min-width: 861px) {
-  .gl-scroll:not(.is-scrolly) .tl-panel {
+  .tl-panel {
     position: sticky;
     top: calc(var(--header-height) + var(--space-8));
   }
-}
-
-/* Scroll-driven mode (set from script when the full stage fits under
-   the header): the stage holds still while the page scrolls through
-   the spacer, and equal bands of scroll step symmetrically down and up. */
-.gl-scroll.is-scrolly .gl-stage {
-  position: sticky;
-  top: var(--gl-top);
-}
-
-.gl-scroll.is-scrolly .gl-spacer {
-  height: var(--gl-travel);
-}
-
-/* Scrolling does the choosing here, so details are open directly
-   below a hairline without a fake toggle button. */
-.gl-scroll.is-scrolly .tl-entry__toggle {
-  display: none;
-}
-
-.gl-scroll.is-scrolly .tl-entry .tl-entry__more {
-  margin-top: var(--space-6);
-  padding-top: var(--space-6);
-  border-top: 1px dashed var(--line-strong);
-  max-height: none;
-  opacity: 1;
-  -webkit-mask-image: none;
-  mask-image: none;
 }
 
 .tl-entry {
@@ -526,52 +480,10 @@
   color: var(--ink-primary);
 }
 
-.tl-entry__toggle {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  margin-top: var(--space-6);
-  padding: var(--space-4) 0;
-  border: 0;
-  border-top: 1px dashed var(--line-strong);
-  background: none;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--ink-muted);
-  text-align: left;
-  cursor: pointer;
-  transition: color var(--duration-fast) var(--ease-out);
-}
-
-.tl-entry__chevron {
-  width: 6px;
-  height: 6px;
-  border-right: 1.5px solid currentColor;
-  border-bottom: 1.5px solid currentColor;
-  transform: rotate(-45deg);
-  transition: transform var(--duration-base) var(--ease-out);
-}
-
-.tl-entry__hint {
-  margin-left: auto;
-  transition: opacity var(--duration-fast) var(--ease-out);
-}
-
-.tl-panel.is-pinned .tl-entry__hint {
-  color: var(--accent);
-}
-
-/* Collapsed (non-scrolly fallback), the details preview their first lines fading out. */
 .tl-entry__more {
-  max-height: 6rem;
-  overflow: hidden;
-  opacity: 0.65;
-  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
-  mask-image: linear-gradient(to bottom, #000 30%, transparent);
-  transition:
-    max-height var(--duration-base) var(--ease-out),
-    opacity var(--duration-base) var(--ease-out);
+  margin-top: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: 1px dashed var(--line-strong);
 }
 
 .tl-entry__more-inner {
@@ -583,46 +495,6 @@
 
 .tl-entry__more-inner .dash-list {
   gap: var(--space-2);
-}
-
-/* Unfolded in non-scrolly mode: pinned, keyboard focus inside the panel, or hover. */
-.tl-panel.is-pinned .tl-entry__toggle,
-.tl-panel:has(:focus-visible) .tl-entry__toggle {
-  color: var(--ink-primary);
-}
-
-.tl-panel.is-pinned .tl-entry__chevron,
-.tl-panel:has(:focus-visible) .tl-entry__chevron {
-  transform: rotate(45deg);
-}
-
-.tl-panel.is-pinned .tl-entry.is-active .tl-entry__more,
-.tl-panel:has(:focus-visible) .tl-entry.is-active .tl-entry__more {
-  max-height: 40rem;
-  opacity: 1;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-@media (hover: hover) and (min-width: 861px) {
-  .gl-scroll:not(.is-scrolly) .tl-panel:hover .tl-entry__toggle {
-    color: var(--ink-primary);
-  }
-
-  .gl-scroll:not(.is-scrolly) .tl-panel:hover .tl-entry__chevron {
-    transform: rotate(45deg);
-  }
-
-  .gl-scroll:not(.is-scrolly) .tl-panel:not(.is-pinned):hover .tl-entry__hint {
-    opacity: 0;
-  }
-
-  .gl-scroll:not(.is-scrolly) .tl-panel:hover .tl-entry.is-active .tl-entry__more {
-    max-height: 40rem;
-    opacity: 1;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
 }
 
 .dash-list {
@@ -1134,6 +1006,10 @@
     background-color: var(--bg-elevated);
   }
 
+  .tl-panel[hidden] {
+    display: none;
+  }
+
   .tl-entry {
     display: none;
   }
@@ -1160,9 +1036,9 @@
     margin-top: var(--space-4);
   }
 
-  .tl-entry__toggle {
+  .tl-entry__more {
     margin-top: var(--space-4);
-    padding-block: var(--space-3);
+    padding-top: var(--space-4);
   }
 
   .projects {

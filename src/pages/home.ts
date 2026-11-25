@@ -44,11 +44,9 @@ function renderWhoami(): string {
    `mergesWith` joins the two: its row is a merge commit, and from
    there up to "now" a single rail carries both.
 
-   On desktop viewports where the full stage fits under the header,
-   the stage sticks and equal scroll bands step symmetrically down
-   and up through every commit. Clicking any commit glides straight
-   to its scroll position. On narrow or short viewports, scrolling
-   stays native and entries expand cleanly on click or tap.
+   Desktop shows a two-column master–detail view with full details
+   always visible. Narrow screens open the active entry inline under
+   its commit row with the rails continuing alongside.
    ------------------------------------------------------------ */
 
 const TRACKS: Array<{ id: TimelineTrack; label: string }> = [
@@ -201,18 +199,7 @@ function renderPanelEntry(entry: TimelineEntry, now: Date, isActive: boolean): s
         <span>${escapeHtml(formatDuration(entry, now))}</span>
       </p>
       <p class="tl-entry__brief">${escapeHtml(entry.brief)}</p>
-      ${
-        details
-          ? `
-            <button type="button" class="tl-entry__toggle" data-tl-pin aria-expanded="false">
-              <span class="tl-entry__chevron" aria-hidden="true"></span>
-              <span>details</span>
-              <span class="tl-entry__hint" data-tl-hint></span>
-            </button>
-            <div class="tl-entry__more"><div class="tl-entry__more-inner">${details}</div></div>
-          `
-          : ""
-      }
+      ${details ? `<div class="tl-entry__more"><div class="tl-entry__more-inner">${details}</div></div>` : ""}
     </article>
   `;
 }
@@ -221,7 +208,6 @@ function renderTimeline(): string {
   const today = new Date();
   const graph = buildGraph();
   const { entries } = graph;
-  // Start on the newest entry so initial state always matches scroll index 0.
   const firstId = entries[0]?.id;
 
   // The newest entry of each branch carries the branch name, like a ref.
@@ -232,32 +218,27 @@ function renderTimeline(): string {
     <section class="section" id="timeline" aria-labelledby="timeline-title">
       <div class="container">
         <h2 class="sr-only" id="timeline-title">Timeline</h2>
-        <div class="gl-scroll" data-tl-scroll>
-          <div class="gl-stage" data-tl-stage>
-            ${renderPrompt("git log --graph --all")}
-            <div class="gl" data-tl style="--lanes:${TRACKS.length}">
-              <div class="gl-log" data-tl-list>
-                <div class="gl-row gl-row--head" aria-hidden="true">
-                  <span class="gl-graph">${line("down", headTrack, trackColumn(headTrack))}</span>
-                  <span class="gl-head">now</span>
-                </div>
-                <ol class="gl-list" aria-label="Work and education, newest first">
-                  ${entries
-                    .map((entry, row) => {
-                      const ref = tips.has(entry.id)
-                        ? `<span class="gl-ref ${trackClass(entry.track)}">(${escapeHtml(trackLabel(entry.track))})</span>`
-                        : "";
-                      return renderCommit(entry, renderRowGraph(graph, row), ref, entry.id === firstId);
-                    })
-                    .join("")}
-                </ol>
-              </div>
-              <div class="tl-panel" id="tl-panel" data-tl-panel>
-                ${entries.map((entry) => renderPanelEntry(entry, today, entry.id === firstId)).join("")}
-              </div>
+        ${renderPrompt("git log --graph --all")}
+        <div class="gl" data-tl style="--lanes:${TRACKS.length}">
+          <div class="gl-log" data-tl-list>
+            <div class="gl-row gl-row--head" aria-hidden="true">
+              <span class="gl-graph">${line("down", headTrack, trackColumn(headTrack))}</span>
+              <span class="gl-head">now</span>
             </div>
+            <ol class="gl-list" aria-label="Work and education, newest first">
+              ${entries
+                .map((entry, row) => {
+                  const ref = tips.has(entry.id)
+                    ? `<span class="gl-ref ${trackClass(entry.track)}">(${escapeHtml(trackLabel(entry.track))})</span>`
+                    : "";
+                  return renderCommit(entry, renderRowGraph(graph, row), ref, entry.id === firstId);
+                })
+                .join("")}
+            </ol>
           </div>
-          <div class="gl-spacer" aria-hidden="true"></div>
+          <div class="tl-panel" id="tl-panel" data-tl-panel>
+            ${entries.map((entry) => renderPanelEntry(entry, today, entry.id === firstId)).join("")}
+          </div>
         </div>
       </div>
     </section>
@@ -339,11 +320,6 @@ export function renderHomePage(): string {
    Behavior
    ------------------------------------------------------------ */
 
-const HOVER_INTENT_MS = 110;
-const SCROLL_HOVER_COOLDOWN_MS = 280;
-/* Equal scroll distance per entry while the timeline stage is pinned. */
-const SCROLL_STEP_PX = 160;
-const MIN_STAGE_BREATHING_PX = 24;
 let hasTypedIntro = false;
 
 function prefersReducedMotion(): boolean {
@@ -369,43 +345,38 @@ function typeIntro(root: HTMLElement): void {
 export function bindHomePage(root: HTMLElement): () => void {
   typeIntro(root);
 
-  const scrollEl = root.querySelector<HTMLElement>("[data-tl-scroll]");
-  const stageEl = root.querySelector<HTMLElement>("[data-tl-stage]");
   const tlEl = root.querySelector<HTMLElement>("[data-tl]");
   const listEl = root.querySelector<HTMLElement>("[data-tl-list]");
   const panelEl = root.querySelector<HTMLElement>("[data-tl-panel]");
-  if (!scrollEl || !stageEl || !tlEl || !listEl || !panelEl) {
+  if (!tlEl || !listEl || !panelEl) {
     return () => {};
   }
 
   const rows = Array.from(listEl.querySelectorAll<HTMLElement>("[data-tl-row]"));
   const items = Array.from(listEl.querySelectorAll<HTMLButtonElement>("[data-tl-item]"));
   const entries = Array.from(panelEl.querySelectorAll<HTMLElement>("[data-tl-entry]"));
-  const canHover = window.matchMedia("(hover: hover)");
   /* Narrow layout: the panel opens inside the selected row. */
   const stacked = window.matchMedia("(max-width: 860px)");
-  /* Hover only previews where the rows cannot move under the pointer. */
-  const hoverMode = (): boolean => canHover.matches && !stacked.matches;
 
+  const firstId = items[0]?.dataset.tlItem ?? "";
   let activeId = (items.find((item) => item.classList.contains("is-active")) ?? items[0])?.dataset.tlItem ?? "";
-  let pinned = false;
-  let hoverPreviewId: string | null = null;
-  let intentTimer: number | undefined;
-  let scrolly = false;
-  let glTop = 0;
-  let travel = 0;
-  let lastScrollAt = 0;
-  let rafId: number | null = null;
-  let destroyed = false;
 
   const placePanel = (): void => {
-    const home = stacked.matches
-      ? rows.find((row) => row.dataset.tlRow === activeId)?.querySelector<HTMLElement>(".gl-body")
-      : tlEl;
-    if (home && panelEl.parentElement !== home) home.appendChild(panelEl);
+    if (stacked.matches) {
+      const home = activeId
+        ? rows.find((row) => row.dataset.tlRow === activeId)?.querySelector<HTMLElement>(".gl-body")
+        : null;
+      panelEl.hidden = !home;
+      if (home && panelEl.parentElement !== home) home.appendChild(panelEl);
+      return;
+    }
+    panelEl.hidden = false;
+    if (panelEl.parentElement !== tlEl) tlEl.appendChild(panelEl);
   };
 
   const sync = (): void => {
+    if (!stacked.matches && !activeId) activeId = firstId;
+
     for (const row of rows) row.classList.toggle("is-active", row.dataset.tlRow === activeId);
     for (const item of items) {
       const isActive = item.dataset.tlItem === activeId;
@@ -414,57 +385,10 @@ export function bindHomePage(root: HTMLElement): () => void {
       if (isActive) item.setAttribute("aria-current", "true");
       else item.removeAttribute("aria-current");
     }
-    const hint = hoverMode()
-      ? pinned
-        ? "pinned · esc to unpin"
-        : "hover, or click to pin"
-      : pinned
-        ? "tap to fold"
-        : "tap to unfold";
     for (const entry of entries) {
       entry.classList.toggle("is-active", entry.dataset.tlEntry === activeId);
-      entry.querySelector("[data-tl-pin]")?.setAttribute("aria-expanded", String(pinned));
-      const hintEl = entry.querySelector("[data-tl-hint]");
-      if (hintEl) hintEl.textContent = hint;
     }
-    panelEl.classList.toggle("is-pinned", pinned && !scrolly);
     placePanel();
-  };
-
-  /* Symmetric, equal-bucket scroll-to-index mapping:
-     bucket k covers [k * step, (k + 1) * step) for every entry including
-     first and last, so scrolling down and scrolling up behave identically. */
-  const scrollMetrics = (): { scrolled: number; progress: number; index: number } => {
-    if (travel <= 0 || !items.length) {
-      return { scrolled: 0, progress: 0, index: 0 };
-    }
-    const scrolled = glTop - scrollEl.getBoundingClientRect().top;
-    const progress = Math.min(Math.max(scrolled / travel, 0), 1);
-    if (scrolled <= 0) return { scrolled, progress: 0, index: 0 };
-    if (scrolled >= travel) return { scrolled, progress: 1, index: items.length - 1 };
-    const index = Math.min(Math.floor((scrolled / travel) * items.length), items.length - 1);
-    return { scrolled, progress, index };
-  };
-
-  const syncFromScroll = (): void => {
-    if (!scrolly) return;
-    const { progress, index } = scrollMetrics();
-    scrollEl.style.setProperty("--gl-progress", progress.toFixed(4));
-    const nextId = items[index]?.dataset.tlItem ?? activeId;
-    hoverPreviewId = null;
-    if (nextId !== activeId) {
-      activeId = nextId;
-      sync();
-    }
-  };
-
-  const scrollToCommit = (index: number): void => {
-    if (!scrolly || travel <= 0 || !items.length) return;
-    const docTop = scrollEl.getBoundingClientRect().top + window.scrollY;
-    const step = travel / items.length;
-    const targetY = Math.max(0, Math.round(docTop - glTop + (index + 0.5) * step));
-    const behavior: ScrollBehavior = prefersReducedMotion() ? "instant" : "smooth";
-    window.scrollTo({ top: targetY, behavior });
   };
 
   /* In the narrow layout the panel moving between rows shifts the page;
@@ -476,194 +400,57 @@ export function bindHomePage(root: HTMLElement): () => void {
     if (stacked.matches && shift) window.scrollBy({ top: shift, behavior: "instant" });
   };
 
-  const measure = (): void => {
-    if (destroyed) return;
-    placePanel();
-
-    const header = document.querySelector<HTMLElement>(".site-header")?.offsetHeight ?? 0;
-    const eligible = !stacked.matches && items.length > 1;
-
-    let nextScrolly = false;
-    let nextGlTop = header + 24;
-    let nextTravel = 0;
-
-    if (eligible) {
-      // Measure the full stage with scrolly layout applied (all details expanded
-      // in grid-area 1/1) so stage height stays invariant across all commits.
-      const hadScrolly = scrollEl.classList.contains("is-scrolly");
-      if (!hadScrolly) scrollEl.classList.add("is-scrolly");
-      const stageHeight = stageEl.offsetHeight;
-      const room = window.innerHeight - header - stageHeight;
-      if (room >= MIN_STAGE_BREATHING_PX) {
-        nextScrolly = true;
-        nextGlTop = Math.round(header + Math.min(48, room / 2));
-        nextTravel = items.length * SCROLL_STEP_PX;
-      } else if (!hadScrolly) {
-        scrollEl.classList.remove("is-scrolly");
-      }
+  const selectByIndex = (index: number, focus = false): void => {
+    const clamped = Math.max(0, Math.min(index, items.length - 1));
+    const item = items[clamped];
+    if (!item) return;
+    const id = item.dataset.tlItem ?? "";
+    if (id !== activeId) {
+      keepInPlace(item, () => {
+        activeId = id;
+        sync();
+      });
     }
-
-    scrolly = nextScrolly;
-    glTop = nextGlTop;
-    travel = nextTravel;
-
-    scrollEl.classList.toggle("is-scrolly", scrolly);
-    if (scrolly) {
-      pinned = false;
-      scrollEl.style.setProperty("--gl-top", `${glTop}px`);
-      scrollEl.style.setProperty("--gl-travel", `${travel}px`);
-      scrollEl.dataset.glTop = String(glTop);
-      syncFromScroll();
-    } else {
-      scrollEl.style.removeProperty("--gl-top");
-      scrollEl.style.removeProperty("--gl-travel");
-      scrollEl.style.removeProperty("--gl-progress");
-      delete scrollEl.dataset.glTop;
-    }
-    sync();
+    if (focus) item.focus();
   };
 
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
     const id = item.dataset.tlItem ?? "";
-    const row = item.closest<HTMLElement>("[data-tl-row]") ?? item;
-
-    row.addEventListener("mouseenter", () => {
-      if (!hoverMode()) return;
-      if (scrolly) {
-        // Ignore accidental cursor contact while the user is actively scrolling.
-        if (performance.now() - lastScrollAt < SCROLL_HOVER_COOLDOWN_MS) return;
-        window.clearTimeout(intentTimer);
-        intentTimer = window.setTimeout(() => {
-          if (performance.now() - lastScrollAt < SCROLL_HOVER_COOLDOWN_MS) return;
-          hoverPreviewId = id;
-          if (activeId !== id) {
-            activeId = id;
-            sync();
-          }
-        }, HOVER_INTENT_MS);
-        return;
-      }
-      if (pinned) return;
-      window.clearTimeout(intentTimer);
-      intentTimer = window.setTimeout(() => {
-        activeId = id;
-        sync();
-      }, HOVER_INTENT_MS);
-    });
-
-    row.addEventListener("mouseleave", () => {
-      window.clearTimeout(intentTimer);
-    });
-
-    item.addEventListener("focus", () => {
-      if (scrolly) {
-        if (id !== activeId) {
-          activeId = id;
-          sync();
-        }
-        return;
-      }
-      if (!stacked.matches && !pinned && id !== activeId) {
-        activeId = id;
-        sync();
-      }
-    });
 
     item.addEventListener("click", () => {
-      window.clearTimeout(intentTimer);
-      if (scrolly) {
-        hoverPreviewId = null;
-        activeId = id;
-        sync();
-        scrollToCommit(i);
-        return;
-      }
       keepInPlace(item, () => {
-        if (hoverMode()) {
-          // Non-scrolly desktop: click pins or unpins the entry.
-          pinned = id === activeId ? !pinned : true;
-        } else {
-          // Touch or narrow: first tap selects, second tap unfolds details.
-          pinned = id === activeId ? !pinned : false;
-        }
-        activeId = id;
+        activeId = stacked.matches && activeId === id ? "" : id;
         sync();
       });
     });
-  }
 
-  // When pointer leaves the commit list in scrolly mode, return smoothly
-  // to the entry matching the current scroll position.
-  listEl.addEventListener("mouseleave", () => {
-    window.clearTimeout(intentTimer);
-    if (scrolly && hoverPreviewId !== null) {
-      syncFromScroll();
-    }
-  });
-
-  panelEl.addEventListener("click", (event) => {
-    if (scrolly) return;
-    if (!(event.target as HTMLElement).closest("[data-tl-pin]")) return;
-    pinned = !pinned;
-    sync();
-  });
-
-  tlEl.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && pinned) {
-      pinned = false;
-      sync();
-    }
-  });
-
-  const onScroll = (): void => {
-    if (destroyed || !scrollEl.isConnected) return;
-    lastScrollAt = performance.now();
-    window.clearTimeout(intentTimer);
-    if (!scrolly) return;
-    if (rafId !== null) return;
-    rafId = window.requestAnimationFrame(() => {
-      rafId = null;
-      if (destroyed) return;
-      syncFromScroll();
+    item.addEventListener("keydown", (event) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        selectByIndex(i + 1, true);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        selectByIndex(i - 1, true);
+      } else if (event.key === "Home") {
+        event.preventDefault();
+        selectByIndex(0, true);
+      } else if (event.key === "End") {
+        event.preventDefault();
+        selectByIndex(items.length - 1, true);
+      }
     });
-  };
-
-  const onResize = (): void => {
-    measure();
-  };
+  }
 
   const onStackedChange = (): void => {
     sync();
-    measure();
   };
 
-  let resizeObserver: ResizeObserver | null = null;
-  if (typeof ResizeObserver !== "undefined") {
-    resizeObserver = new ResizeObserver(() => {
-      if (!destroyed) measure();
-    });
-    resizeObserver.observe(listEl);
-  }
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onResize, { passive: true });
   stacked.addEventListener("change", onStackedChange);
-
   sync();
-  measure();
-
-  document.fonts?.ready.then(() => {
-    if (!destroyed) measure();
-  });
 
   return () => {
-    destroyed = true;
-    window.clearTimeout(intentTimer);
-    if (rafId !== null) window.cancelAnimationFrame(rafId);
-    window.removeEventListener("scroll", onScroll);
-    window.removeEventListener("resize", onResize);
     stacked.removeEventListener("change", onStackedChange);
-    resizeObserver?.disconnect();
   };
 }
