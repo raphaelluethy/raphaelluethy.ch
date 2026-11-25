@@ -27,15 +27,15 @@ export function formatDate(isoDate: string): string {
    instead of sitting in a box of its own. */
 export function renderPrompt(
   command: string,
-  options: { cursor?: boolean; typed?: boolean } = {}
+  options: { cursor?: boolean; typed?: boolean; comment?: string } = {}
 ): string {
   return `
     <div class="prompt" aria-hidden="true">
       <span class="prompt__host">raphael@luethy</span>
       <span class="prompt__path">~ %</span>
       <span class="prompt__cmd"${options.typed ? " data-typed" : ""}>${escapeHtml(command)}</span>${
-        options.cursor || options.typed ? `<span class="prompt__cursor"></span>` : ""
-      }
+        options.comment ? `<span class="prompt__comment"># ${escapeHtml(options.comment)}</span>` : ""
+      }${options.cursor || options.typed ? `<span class="prompt__cursor"></span>` : ""}
     </div>
   `;
 }

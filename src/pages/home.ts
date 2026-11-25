@@ -153,7 +153,52 @@ function renderRowGraph(graph: Graph, row: number): string {
   return parts.join("");
 }
 
-function renderCommit(entry: TimelineEntry, graph: string, ref: string, isActive: boolean): string {
+const HEAD_ID = "head";
+
+function renderRefHtml(branch: string | null, isActive: boolean, isHead = false): string {
+  if (isHead) {
+    return isActive ? `(<span class="gl-ref__head">HEAD</span>)` : "";
+  }
+  if (isActive && branch) {
+    return `(<span class="gl-ref__head">HEAD</span><span class="gl-ref__sep"> -&gt; </span>${escapeHtml(branch)})`;
+  }
+  if (isActive) {
+    return `(<span class="gl-ref__head">detached HEAD</span>)`;
+  }
+  if (branch) {
+    return `(${escapeHtml(branch)})`;
+  }
+  return "";
+}
+
+function renderHeadRow(headTrack: TimelineTrack, isActive: boolean): string {
+  const refHtml = renderRefHtml(null, isActive, true);
+  const col = trackColumn(headTrack);
+  return `
+    <div class="gl-row gl-row--head ${isActive ? "is-active" : ""}" data-tl-row="${HEAD_ID}">
+      <span class="gl-graph" aria-hidden="true">
+        ${line("down", headTrack, col)}
+        <i class="gl-node gl-node--head ${trackClass(headTrack)}" style="--col:${col}"></i>
+      </span>
+      <div class="gl-body">
+        <button
+          type="button"
+          class="gl-commit gl-commit--head ${isActive ? "is-active" : ""}"
+          data-tl-item="${HEAD_ID}"
+          aria-controls="tl-panel"
+        >
+          <span class="gl-head">now</span>
+          <span class="gl-ref ${trackClass(headTrack)}" data-tl-ref data-tl-head="true" ${refHtml ? "" : "hidden"}>${refHtml}</span>
+          <span class="gl-commit__hint" aria-hidden="true">summary</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderCommit(entry: TimelineEntry, graph: string, branch: string | null, isActive: boolean): string {
+  const refHtml = renderRefHtml(branch, isActive);
+  const detached = isActive && !branch;
   return `
     <li class="gl-row ${isActive ? "is-active" : ""}" data-tl-row="${escapeHtml(entry.id)}">
       <span class="gl-graph" aria-hidden="true">${graph}</span>
@@ -168,7 +213,13 @@ function renderCommit(entry: TimelineEntry, graph: string, ref: string, isActive
           <span class="gl-commit__meta">
             <span class="gl-commit__org">${escapeHtml(entry.orgShort ?? entry.organization)}</span>
             <span class="gl-commit__date">${escapeHtml(formatRange(entry))}</span>
-            ${ref}
+            <span
+              class="gl-ref ${trackClass(entry.track)} ${detached ? "is-detached" : ""}"
+              data-tl-ref
+              data-tl-branch="${branch ? escapeHtml(branch) : ""}"
+              ${refHtml ? "" : "hidden"}
+            >${refHtml}</span>
+            <span class="gl-commit__hint" aria-hidden="true">show</span>
           </span>
         </button>
       </div>
@@ -185,6 +236,44 @@ function renderDetails(entry: TimelineEntry): string {
       ? `<p class="tl-focus"><span>focus</span>${escapeHtml(entry.focusAreas)}</p>`
       : ""
   ].join("");
+}
+
+function renderSummaryPanel(entries: TimelineEntry[], isActive: boolean): string {
+  const earliestYear = entries.length ? parseMonth(entries[entries.length - 1].start).year : "";
+  const workCount = entries.filter((entry) => entry.track === "experience").length;
+  const eduCount = entries.filter((entry) => entry.track === "education").length;
+  const summaryItems = entries
+    .map(
+      (entry) => `
+        <li>
+          <button
+            type="button"
+            class="tl-summary-item ${trackClass(entry.track)}"
+            data-tl-jump="${escapeHtml(entry.id)}"
+          >
+            <span class="tl-summary-item__head">
+              <span class="tl-summary-item__role">${escapeHtml(entry.role)}</span>
+              <span class="tl-summary-item__date">${escapeHtml(entry.period)}</span>
+            </span>
+            <span class="tl-summary-item__brief">${escapeHtml(entry.brief)}</span>
+          </button>
+        </li>
+      `
+    )
+    .join("");
+
+  return `
+    <article class="tl-entry tl-entry--summary ${isActive ? "is-active" : ""}" data-tl-entry="${HEAD_ID}">
+      <h3 class="tl-entry__role">Summary</h3>
+      <p class="tl-entry__meta">
+        <span class="gl-ref__head">HEAD</span>
+        ${earliestYear ? `<span>${earliestYear}–now</span>` : ""}
+        <span class="tl-entry__track is-work">${workCount} work</span>
+        <span class="tl-entry__track is-edu">${eduCount} education</span>
+      </p>
+      <ul class="tl-summary-list" aria-label="Summary of timeline entries">${summaryItems}</ul>
+    </article>
+  `;
 }
 
 function renderPanelEntry(entry: TimelineEntry, now: Date, isActive: boolean): string {
@@ -208,7 +297,6 @@ function renderTimeline(): string {
   const today = new Date();
   const graph = buildGraph();
   const { entries } = graph;
-  const firstId = entries[0]?.id;
 
   // The newest entry of each branch carries the branch name, like a ref.
   const tips = new Set(TRACKS.map((track) => entries.find((entry) => entry.track === track.id)?.id));
@@ -218,26 +306,22 @@ function renderTimeline(): string {
     <section class="section" id="timeline" aria-labelledby="timeline-title">
       <div class="container">
         <h2 class="sr-only" id="timeline-title">Timeline</h2>
-        ${renderPrompt("git log --graph --all")}
+        ${renderPrompt("git log --graph --all", { comment: "click a commit to move HEAD" })}
         <div class="gl" data-tl style="--lanes:${TRACKS.length}">
           <div class="gl-log" data-tl-list>
-            <div class="gl-row gl-row--head" aria-hidden="true">
-              <span class="gl-graph">${line("down", headTrack, trackColumn(headTrack))}</span>
-              <span class="gl-head">now</span>
-            </div>
+            ${renderHeadRow(headTrack, true)}
             <ol class="gl-list" aria-label="Work and education, newest first">
               ${entries
                 .map((entry, row) => {
-                  const ref = tips.has(entry.id)
-                    ? `<span class="gl-ref ${trackClass(entry.track)}">(${escapeHtml(trackLabel(entry.track))})</span>`
-                    : "";
-                  return renderCommit(entry, renderRowGraph(graph, row), ref, entry.id === firstId);
+                  const branch = tips.has(entry.id) ? trackLabel(entry.track) : null;
+                  return renderCommit(entry, renderRowGraph(graph, row), branch, false);
                 })
                 .join("")}
             </ol>
           </div>
           <div class="tl-panel" id="tl-panel" data-tl-panel>
-            ${entries.map((entry) => renderPanelEntry(entry, today, entry.id === firstId)).join("")}
+            ${renderSummaryPanel(entries, true)}
+            ${entries.map((entry) => renderPanelEntry(entry, today, false)).join("")}
           </div>
         </div>
       </div>
@@ -358,14 +442,15 @@ export function bindHomePage(root: HTMLElement): () => void {
   /* Narrow layout: the panel opens inside the selected row. */
   const stacked = window.matchMedia("(max-width: 860px)");
 
-  const firstId = items[0]?.dataset.tlItem ?? "";
-  let activeId = (items.find((item) => item.classList.contains("is-active")) ?? items[0])?.dataset.tlItem ?? "";
+  const defaultId = HEAD_ID;
+  let activeId = stacked.matches ? "" : defaultId;
 
   const placePanel = (): void => {
     if (stacked.matches) {
-      const home = activeId
-        ? rows.find((row) => row.dataset.tlRow === activeId)?.querySelector<HTMLElement>(".gl-body")
-        : null;
+      const home =
+        activeId && activeId !== HEAD_ID
+          ? rows.find((row) => row.dataset.tlRow === activeId)?.querySelector<HTMLElement>(".gl-body")
+          : null;
       panelEl.hidden = !home;
       if (home && panelEl.parentElement !== home) home.appendChild(panelEl);
       return;
@@ -375,15 +460,27 @@ export function bindHomePage(root: HTMLElement): () => void {
   };
 
   const sync = (): void => {
-    if (!stacked.matches && !activeId) activeId = firstId;
+    if (stacked.matches && activeId === HEAD_ID) activeId = "";
+    if (!stacked.matches && !activeId) activeId = defaultId;
 
     for (const row of rows) row.classList.toggle("is-active", row.dataset.tlRow === activeId);
     for (const item of items) {
+      const isHead = item.dataset.tlItem === HEAD_ID;
       const isActive = item.dataset.tlItem === activeId;
       item.classList.toggle("is-active", isActive);
+      item.disabled = isHead && stacked.matches;
       item.setAttribute("aria-expanded", String(isActive && stacked.matches));
       if (isActive) item.setAttribute("aria-current", "true");
       else item.removeAttribute("aria-current");
+
+      const refEl = item.querySelector<HTMLElement>("[data-tl-ref]");
+      if (refEl) {
+        const branch = refEl.dataset.tlBranch || null;
+        const html = renderRefHtml(branch, isActive, isHead);
+        refEl.innerHTML = html;
+        refEl.hidden = !html;
+        refEl.classList.toggle("is-detached", isActive && !branch && !isHead);
+      }
     }
     for (const entry of entries) {
       entry.classList.toggle("is-active", entry.dataset.tlEntry === activeId);
@@ -400,9 +497,12 @@ export function bindHomePage(root: HTMLElement): () => void {
     if (stacked.matches && shift) window.scrollBy({ top: shift, behavior: "instant" });
   };
 
-  const selectByIndex = (index: number, focus = false): void => {
-    const clamped = Math.max(0, Math.min(index, items.length - 1));
-    const item = items[clamped];
+  const navItems = (): HTMLButtonElement[] =>
+    stacked.matches ? items.filter((item) => item.dataset.tlItem !== HEAD_ID) : items;
+
+  const selectByIndex = (list: HTMLButtonElement[], index: number, focus = false): void => {
+    const clamped = Math.max(0, Math.min(index, list.length - 1));
+    const item = list[clamped];
     if (!item) return;
     const id = item.dataset.tlItem ?? "";
     if (id !== activeId) {
@@ -414,11 +514,11 @@ export function bindHomePage(root: HTMLElement): () => void {
     if (focus) item.focus();
   };
 
-  for (let i = 0; i < items.length; i += 1) {
-    const item = items[i];
+  for (const item of items) {
     const id = item.dataset.tlItem ?? "";
 
     item.addEventListener("click", () => {
+      if (stacked.matches && id === HEAD_ID) return;
       keepInPlace(item, () => {
         activeId = stacked.matches && activeId === id ? "" : id;
         sync();
@@ -427,21 +527,32 @@ export function bindHomePage(root: HTMLElement): () => void {
 
     item.addEventListener("keydown", (event) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      const list = navItems();
+      const idx = list.indexOf(item);
+      if (idx < 0) return;
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        selectByIndex(i + 1, true);
+        selectByIndex(list, idx + 1, true);
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
-        selectByIndex(i - 1, true);
+        selectByIndex(list, idx - 1, true);
       } else if (event.key === "Home") {
         event.preventDefault();
-        selectByIndex(0, true);
+        selectByIndex(list, 0, true);
       } else if (event.key === "End") {
         event.preventDefault();
-        selectByIndex(items.length - 1, true);
+        selectByIndex(list, list.length - 1, true);
       }
     });
   }
+
+  panelEl.addEventListener("click", (event) => {
+    const jump = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>("[data-tl-jump]");
+    const targetId = jump?.dataset.tlJump;
+    if (!targetId) return;
+    activeId = targetId;
+    sync();
+  });
 
   const onStackedChange = (): void => {
     sync();

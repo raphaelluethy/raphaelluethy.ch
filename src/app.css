@@ -170,6 +170,11 @@
   color: var(--ink-primary);
 }
 
+.prompt__comment {
+  color: var(--ink-muted);
+  opacity: 0.72;
+}
+
 .prompt__cursor {
   width: 0.6em;
   height: 1.15em;
@@ -322,20 +327,26 @@
   background: linear-gradient(90deg, var(--rail-work) 50%, var(--rail-edu) 50%);
 }
 
-/* "now": where the rails of everything still running come in. */
+/* "now": HEAD summary row at the tip of the graph. */
 .gl-row--head {
   --node-y: 50%;
+}
 
-  height: var(--space-8);
+.gl-node--head {
+  background-color: var(--bg-page);
+  border: 2px solid var(--c);
+}
+
+.gl-row--head.is-active .gl-node--head {
+  background-color: var(--c);
 }
 
 .gl-head {
-  align-self: center;
-  padding-left: var(--space-4);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  line-height: 1;
+  line-height: 1.4;
   color: var(--ink-muted);
+  transition: color var(--duration-fast) var(--ease-out);
 }
 
 .gl-row--head .gl-line {
@@ -359,6 +370,17 @@
   color: var(--ink-secondary);
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.gl-commit--head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+}
+
+.gl-commit--head.is-active .gl-head {
+  color: var(--ink-primary);
 }
 
 .gl-row:hover .gl-commit {
@@ -412,13 +434,64 @@
   color: var(--c);
 }
 
+.gl-ref.is-detached {
+  color: var(--ink-muted);
+}
+
+.gl-ref__head {
+  font-weight: var(--weight-semibold);
+  color: var(--accent);
+}
+
+.gl-ref__sep {
+  color: var(--ink-muted);
+}
+
+.gl-commit__hint {
+  display: none;
+  align-items: center;
+  gap: 0.4ch;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    opacity var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.gl-commit__hint::after {
+  content: "->";
+  display: inline-block;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+@media (hover: hover) and (min-width: 1060px) {
+  .gl-commit:not(.is-active) .gl-commit__hint {
+    display: inline-flex;
+  }
+
+  .gl-row:hover .gl-commit:not(.is-active) .gl-commit__hint,
+  .gl-commit:not(.is-active):focus-visible .gl-commit__hint {
+    opacity: 1;
+    color: var(--accent);
+  }
+
+  .gl-row:hover .gl-commit:not(.is-active) .gl-commit__hint::after,
+  .gl-commit:not(.is-active):focus-visible .gl-commit__hint::after {
+    transform: translateX(3px);
+  }
+}
+
 /* Detail panel: every entry occupies the same grid cell, so swapping
    entries keeps the panel's height without layout shift. */
 .tl-panel {
   position: relative;
   display: grid;
   align-content: start;
-  padding: var(--space-8) 0 var(--space-4) var(--space-10);
+  padding: var(--space-2) 0 var(--space-4) var(--space-10);
   border-left: 1px solid var(--line-subtle);
 }
 
@@ -495,6 +568,61 @@
 
 .tl-entry__more-inner .dash-list {
   gap: var(--space-2);
+}
+
+.tl-summary-list {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px dashed var(--line-strong);
+  list-style: none;
+}
+
+.tl-summary-item {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-left: 2px solid var(--c);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.tl-summary-item:hover {
+  background-color: var(--bg-surface);
+}
+
+.tl-summary-item__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2px var(--space-3);
+}
+
+.tl-summary-item__role {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-primary);
+}
+
+.tl-summary-item__date {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
+
+.tl-summary-item__brief {
+  max-width: 54ch;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--ink-secondary);
 }
 
 .dash-list {
@@ -965,10 +1093,6 @@
     --node-y: 50%;
   }
 
-  .gl-head {
-    padding-left: var(--space-3);
-  }
-
   .gl-commit {
     position: relative;
     gap: var(--space-1);
@@ -996,6 +1120,19 @@
 
   .gl-commit.is-active {
     border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .gl-commit--head {
+    padding: var(--space-2) var(--space-3);
+    cursor: default;
+  }
+
+  .gl-commit--head::after {
+    display: none;
+  }
+
+  .gl-row--head:hover .gl-commit--head {
+    background: none;
   }
 
   .tl-panel {
