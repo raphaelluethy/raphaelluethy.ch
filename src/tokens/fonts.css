@@ -1,11 +1,6 @@
 /* ============================================================
-   FONTS
-   The live site uses the system "Courier New". For a portable
-   webfont we ship Courier Prime — a refined, metrically-similar
-   revival of Courier — with Courier New and the platform
-   monospace stack as fallbacks (see --font-mono in typography.css).
-
-   The Courier Prime stylesheet is loaded via a preconnected
-   <link> in index.html rather than a nested CSS @import, to avoid
-   a render-blocking request waterfall on first paint.
+   FONTS — Matched 2-family Swiss-technical pairing.
+   1. IBM Plex Sans: crisp display headings, UI, and long-form prose
+   2. IBM Plex Mono: shell prompt, paths, repo names, and timeline dates
+   Loaded via preconnected Google Fonts <link> in index.html.
    ============================================================ */

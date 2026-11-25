@@ -1,115 +1,253 @@
-/* raphaelluethy.ch — terminal window behavior.
+import { SITE } from "./data/site";
+import { POSTS } from "./data/posts";
+import { navigateTo, parseRoute } from "./router";
+import { bindHomePage, renderHomePage } from "./pages/home";
+import { renderBlogIndexPage, renderBlogPostPage } from "./pages/blog";
+import { escapeHtml, renderPrompt } from "./utils/html";
 
-   The page is a two-view terminal: home runs `whoami`, projects runs
-   `ls -la projects`. Navigating between them mirrors a real shell:
-     1. flush   — the current output fades out
-     2. retype  — the new command is typed character by character
-     3. reveal  — the new output fades in
-   The active view is mirrored to the URL path so refresh, deep-links,
-   and the browser Back button all work. `prefers-reduced-motion` skips
-   the typing and fades. */
+type Theme = "dark" | "light";
 
-const VIEWS = ["home", "projects"] as const;
-type View = (typeof VIEWS)[number];
+const THEME_STORAGE_KEY = "rl-theme";
 
-const COMMANDS: Record<View, string> = {
-  home: "whoami",
-  projects: "ls -la projects",
-};
-
-const TYPE_INTERVAL = 45; // ms per typed character
-const REVEAL_DELAY = 140; // ms after typing before the output appears
-const FLUSH_DELAY = 190; // ms the old output fades before the swap
-
-function isView(value: string): value is View {
-  return (VIEWS as readonly string[]).includes(value);
-}
-
-const output = document.querySelector<HTMLElement>("[data-output]");
-const typed = document.querySelector<HTMLElement>("[data-typed]");
-const views = new Map<View, HTMLElement>();
-for (const el of document.querySelectorAll<HTMLElement>("[data-view]")) {
-  const name = el.dataset.view;
-  if (name && isView(name)) views.set(name, el);
-}
-
-const prefersReducedMotion = (): boolean =>
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-
-let current: View = "home";
-let cmdTimer: number | undefined;
-let flushTimer: number | undefined;
-let revealTimer: number | undefined;
-
-function setOutputVisible(visible: boolean): void {
-  if (output) output.style.opacity = visible ? "1" : "0";
-}
-
-function showView(next: View): void {
-  for (const [name, el] of views) el.hidden = name !== next;
-}
-
-/** Type the command for `next`, then reveal its output. */
-function typeCommand(next: View): void {
-  const full = COMMANDS[next];
-  window.clearInterval(cmdTimer);
-  if (!typed) return;
-
-  if (prefersReducedMotion()) {
-    typed.textContent = full;
-    setOutputVisible(true);
-    return;
+function getInitialTheme(): Theme {
+  try {
+    const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === "light" || saved === "dark") return saved;
+  } catch {
+    // Ignore storage access errors
   }
-
-  let i = 0;
-  typed.textContent = "";
-  cmdTimer = window.setInterval(() => {
-    i += 1;
-    typed.textContent = full.slice(0, i);
-    if (i >= full.length) {
-      window.clearInterval(cmdTimer);
-      revealTimer = window.setTimeout(() => setOutputVisible(true), REVEAL_DELAY);
-    }
-  }, TYPE_INTERVAL);
+  return "dark";
 }
 
-/** Flush the current output, swap to `next`, then retype + reveal. */
-function navigate(next: View): void {
-  if (next === current) return;
-  window.clearTimeout(flushTimer);
-  window.clearTimeout(revealTimer);
-  setOutputVisible(false);
+function applyTheme(theme: Theme): void {
+  document.documentElement.classList.toggle("theme-light", theme === "light");
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Ignore storage access errors
+  }
+}
 
-  const swap = (): void => {
-    current = next;
-    showView(next);
-    if (typed) typed.textContent = "";
-    typeCommand(next);
+function renderThemeIcon(theme: Theme): string {
+  if (theme === "dark") {
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+  }
+  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+}
+
+function themeLabel(theme: Theme): string {
+  return theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+}
+
+function buildShell(theme: Theme): string {
+  return `
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand-link" href="/" data-link aria-label="${escapeHtml(SITE.name)}, home">
+          <img class="brand-logo" src="/logo.png" width="22" height="22" alt="" />
+          <span class="brand-name">~/${escapeHtml(SITE.domain)}</span>
+        </a>
+
+        <div class="header-right">
+          <nav class="site-nav" aria-label="Primary">
+            <a class="nav-link" href="/cv" data-link data-nav="timeline">timeline</a>
+            <a class="nav-link" href="/projects" data-link data-nav="projects">projects</a>
+            <a class="nav-link" href="/blog" data-link data-nav="blog">writing</a>
+          </nav>
+          <button
+            type="button"
+            class="theme-toggle"
+            data-theme-toggle
+            aria-label="${themeLabel(theme)}"
+            title="${themeLabel(theme)}"
+          >${renderThemeIcon(theme)}</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" data-main></main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <div class="footer-shell">
+          ${renderPrompt(":wq")}
+          <p aria-hidden="true">zsh: command not found: :wq</p>
+          ${renderPrompt("", { cursor: true })}
+        </div>
+        <div class="footer-links">
+          <span>i use vim btw</span>
+          <a href="${escapeHtml(SITE.links.repo)}" target="_blank" rel="noopener noreferrer">source</a>
+        </div>
+      </div>
+    </footer>
+  `;
+}
+
+const appRoot = document.querySelector<HTMLElement>("#app");
+
+if (appRoot) {
+  let theme = getInitialTheme();
+  applyTheme(theme);
+
+  appRoot.innerHTML = buildShell(theme);
+
+  const headerEl = appRoot.querySelector<HTMLElement>("[data-header]");
+  const mainEl = appRoot.querySelector<HTMLElement>("[data-main]");
+  const themeBtn = appRoot.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+  const navLinks = Array.from(appRoot.querySelectorAll<HTMLAnchorElement>("[data-nav]"));
+
+  /* Which view is currently in the DOM, so moving between sections of
+     the profile scrolls instead of re-rendering. */
+  let renderedKey = "";
+  let cleanupPage: (() => void) | null = null;
+  let chromeRafId: number | null = null;
+
+  const setActiveNav = (navKey: string): void => {
+    for (const link of navLinks) {
+      const active = link.dataset.nav === navKey;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    }
   };
 
-  if (prefersReducedMotion()) swap();
-  else flushTimer = window.setTimeout(swap, FLUSH_DELAY);
-}
+  const syncScrollChrome = (): void => {
+    if (headerEl) {
+      headerEl.classList.toggle("is-scrolled", window.scrollY > 8);
+    }
 
-function viewFromPath(): View {
-  const value = location.pathname.replace(/^\/+|\/+$/g, "");
-  return isView(value) ? value : "home";
-}
+    if (renderedKey !== "home" || !mainEl) return;
 
-for (const button of document.querySelectorAll<HTMLElement>("[data-nav]")) {
-  button.addEventListener("click", () => {
-    const target = button.dataset.nav;
-    if (!target || !isView(target) || target === current) return;
-    const path = target === "home" ? "/" : `/${target}`;
-    history.pushState({ view: target }, "", path);
-    navigate(target);
+    const headerHeight = headerEl?.offsetHeight ?? 56;
+    const threshold = headerHeight + 120;
+    const timelineEl = mainEl.querySelector<HTMLElement>("#timeline");
+    const projectsEl = mainEl.querySelector<HTMLElement>("#projects");
+
+    const atBottom =
+      window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 24;
+
+    if (projectsEl && (atBottom || projectsEl.getBoundingClientRect().top <= threshold)) {
+      setActiveNav("projects");
+    } else if (timelineEl && timelineEl.getBoundingClientRect().top <= threshold) {
+      setActiveNav("timeline");
+    } else {
+      setActiveNav("");
+    }
+  };
+
+  const scrollToSection = (sectionId: string, behavior: ScrollBehavior): void => {
+    if (!mainEl) return;
+    const sectionEl = mainEl.querySelector<HTMLElement>(`#${sectionId}`);
+    if (!sectionEl) {
+      window.scrollTo({ top: 0, behavior });
+      return;
+    }
+
+    const headerHeight = headerEl?.offsetHeight ?? 56;
+
+    if (sectionId === "timeline") {
+      const scrollEl = sectionEl.querySelector<HTMLElement>("[data-tl-scroll]");
+      if (scrollEl?.classList.contains("is-scrolly")) {
+        const glTop = Number(scrollEl.dataset.glTop) || headerHeight + 24;
+        const targetY = Math.max(
+          0,
+          Math.round(scrollEl.getBoundingClientRect().top + window.scrollY - glTop + 1)
+        );
+        window.scrollTo({ top: targetY, behavior });
+        return;
+      }
+    }
+
+    const targetY = Math.max(
+      0,
+      Math.round(sectionEl.getBoundingClientRect().top + window.scrollY - headerHeight)
+    );
+    window.scrollTo({ top: targetY, behavior });
+  };
+
+  const renderCurrentRoute = (smooth = false): void => {
+    if (!mainEl) return;
+    const match = parseRoute(window.location.pathname);
+    const navKey = match.page === "blog" ? "blog" : (match.section ?? "");
+
+    setActiveNav(navKey);
+
+    const key = match.page === "home" ? "home" : `blog:${match.slug ?? ""}`;
+    const alreadyRendered = key === renderedKey;
+    const behavior: ScrollBehavior =
+      smooth && alreadyRendered && !prefersReducedMotion() ? "smooth" : "instant";
+
+    if (!alreadyRendered) {
+      cleanupPage?.();
+      cleanupPage = null;
+      renderedKey = key;
+
+      if (match.page === "home") {
+        mainEl.innerHTML = renderHomePage();
+        cleanupPage = bindHomePage(mainEl);
+      } else if (match.slug) {
+        mainEl.innerHTML = renderBlogPostPage(match.slug);
+      } else {
+        mainEl.innerHTML = renderBlogIndexPage();
+      }
+    }
+
+    if (match.page === "home") {
+      document.title = SITE.name;
+    } else {
+      const post = match.slug ? POSTS.find((p) => p.slug === match.slug) : undefined;
+      document.title = `${post ? post.title : "Writing"} · ${SITE.name}`;
+    }
+
+    if (match.page === "home" && match.section) {
+      scrollToSection(match.section, behavior);
+    } else {
+      window.scrollTo({ top: 0, behavior });
+    }
+
+    syncScrollChrome();
+  };
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (chromeRafId !== null) return;
+      chromeRafId = window.requestAnimationFrame(() => {
+        chromeRafId = null;
+        syncScrollChrome();
+      });
+    },
+    { passive: true }
+  );
+
+  appRoot.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement | null;
+    const anchor = target?.closest<HTMLAnchorElement>("a[data-link]");
+    if (!anchor) return;
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+      return;
+    }
+    const href = anchor.getAttribute("href");
+    if (!href || !href.startsWith("/")) return;
+    event.preventDefault();
+    navigateTo(href, () => renderCurrentRoute(true));
   });
+
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      theme = theme === "dark" ? "light" : "dark";
+      applyTheme(theme);
+      themeBtn.innerHTML = renderThemeIcon(theme);
+      themeBtn.setAttribute("aria-label", themeLabel(theme));
+      themeBtn.setAttribute("title", themeLabel(theme));
+    });
+  }
+
+  window.addEventListener("popstate", () => renderCurrentRoute(false));
+
+  renderCurrentRoute(false);
 }
-
-window.addEventListener("popstate", () => navigate(viewFromPath()));
-
-// Boot: honor a deep-linked view, then run its command on top.
-current = viewFromPath();
-showView(current);
-setOutputVisible(true);
-typeCommand(current);

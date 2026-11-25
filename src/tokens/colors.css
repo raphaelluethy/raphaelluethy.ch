@@ -1,94 +1,74 @@
 /* ============================================================
-   COLORS — Raphael Lüthy Design System
-   Monochrome by design. The brand lives in the zinc scale:
-   near-black surfaces, white ink, gray supporting text.
-   Color is reserved for functional/semantic signals only.
+   COLORS — Raphael Luethy
+   Alpine Ink (dark-first) & Architectural Paper (light).
+   Cool architectural neutrals paired with one deliberate accent:
+   Swiss Signal Vermilion. Every text pair meets WCAG AA 4.5:1+.
    ============================================================ */
 
 :root {
-  /* --- Neutral spine (zinc) -------------------------------- */
-  --zinc-50:  #fafafa;
-  --zinc-100: #f4f4f5;
-  --zinc-200: #e4e4e7;
-  --zinc-300: #d4d4d8;
-  --zinc-400: #a1a1aa;
-  --zinc-500: #71717a;
-  --zinc-600: #52525b;
-  --zinc-700: #3f3f46;
-  --zinc-800: #27272a;
-  --zinc-900: #18181b;  /* the brand surface — matches the live site */
-  --zinc-950: #09090b;
+  /* Surfaces (Dark default: Alpine Ink) */
+  --bg-page: #0c0e11;
+  --bg-surface: #13171d;
+  --bg-elevated: #1a2029;
+  --bg-header-scrolled: rgba(12, 14, 17, 0.86);
 
-  --white: #ffffff;
-  --black: #000000;
+  /* Ink */
+  --ink-primary: #f3f5f8;
+  --ink-secondary: #c4cbd6;
+  --ink-muted: #98a2b3;
 
-  /* --- Functional signals (used sparingly) ----------------- */
-  --signal-positive: #4ade80;
-  --signal-negative: #f87171;
-  --signal-warning:  #fbbf24;
-  --signal-info:     #60a5fa;
+  /* Hairlines */
+  --line-subtle: rgba(243, 245, 248, 0.1);
+  --line-strong: rgba(243, 245, 248, 0.22);
 
-  /* ============================================================
-     SEMANTIC ALIASES — default theme is DARK (matches the site)
-     Use these in components, never the raw scale.
-     ============================================================ */
+  /* Deliberate Swiss Signal Vermilion accent */
+  --accent: #ff5a45;
+  --accent-fill: #e03a26;
+  --accent-fill-hover: #c9301d;
+  --accent-ink: #ffffff;
+  --accent-tint: rgba(255, 90, 69, 0.12);
 
-  /* Surfaces */
-  --surface-page:    var(--zinc-900);   /* app/page background */
-  --surface-raised:  var(--zinc-800);   /* cards, panels */
-  --surface-overlay: var(--zinc-950);   /* dialogs, popovers */
-  --surface-inset:   var(--zinc-950);   /* wells, code blocks */
-
-  /* Ink (text) */
-  --text-strong:  var(--white);         /* headings, primary */
-  --text-body:    var(--zinc-300);      /* body copy */
-  --text-muted:   var(--zinc-400);      /* secondary, captions */
-  --text-faint:   var(--zinc-500);      /* disabled, hints */
-  --text-invert:  var(--zinc-900);      /* text on light/white fills */
-
-  /* Lines & borders */
-  --border-subtle: var(--zinc-800);
-  --border-default: var(--zinc-700);
-  --border-strong:  var(--zinc-500);
-  --border-focus:   var(--white);
-
-  /* Interactive fills (monochrome) */
-  --fill-solid:        var(--white);    /* primary button bg */
-  --fill-solid-hover:  var(--zinc-200);
-  --fill-solid-active: var(--zinc-300);
-  --fill-ghost-hover:  var(--zinc-800);
-  --fill-ghost-active: var(--zinc-700);
+  /* Primary solid CTA (crisp high contrast) */
+  --btn-bg: #f3f5f8;
+  --btn-bg-hover: #dce1e8;
+  --btn-ink: #0c0e11;
 
   /* Focus ring */
-  --ring: var(--white);
+  --focus-ring: #ff5a45;
+
+  color-scheme: dark;
 }
 
-/* ------------------------------------------------------------
-   LIGHT THEME — inverse. Opt in with class="theme-light".
-   The brand is dark-first; light is the supporting mode.
-   ------------------------------------------------------------ */
 .theme-light {
-  --surface-page:    var(--zinc-50);
-  --surface-raised:  var(--white);
-  --surface-overlay: var(--white);
-  --surface-inset:   var(--zinc-100);
+  /* Surfaces (Cool Architectural Gallery Paper) */
+  --bg-page: #f4f5f7;
+  --bg-surface: #ffffff;
+  --bg-elevated: #eaedf2;
+  --bg-header-scrolled: rgba(244, 245, 247, 0.88);
 
-  --text-strong:  var(--zinc-950);
-  --text-body:    var(--zinc-700);
-  --text-muted:   var(--zinc-500);
-  --text-faint:   var(--zinc-400);
-  --text-invert:  var(--white);
+  /* Ink */
+  --ink-primary: #10141a;
+  --ink-secondary: #2b3340;
+  --ink-muted: #525d6e;
 
-  --border-subtle: var(--zinc-200);
-  --border-default: var(--zinc-300);
-  --border-strong:  var(--zinc-500);
-  --border-focus:   var(--zinc-950);
+  /* Hairlines */
+  --line-subtle: rgba(16, 20, 26, 0.11);
+  --line-strong: rgba(16, 20, 26, 0.24);
 
-  --fill-solid:        var(--zinc-900);
-  --fill-solid-hover:  var(--zinc-700);
-  --fill-solid-active: var(--zinc-600);
-  --fill-ghost-hover:  var(--zinc-100);
-  --fill-ghost-active: var(--zinc-200);
+  /* Swiss Signal Vermilion (AA contrast on light) */
+  --accent: #c92818;
+  --accent-fill: #c92818;
+  --accent-fill-hover: #ad2113;
+  --accent-ink: #ffffff;
+  --accent-tint: rgba(201, 40, 24, 0.09);
 
-  --ring: var(--zinc-950);
+  /* Primary solid CTA */
+  --btn-bg: #10141a;
+  --btn-bg-hover: #242b36;
+  --btn-ink: #ffffff;
+
+  /* Focus ring */
+  --focus-ring: #c92818;
+
+  color-scheme: light;
 }

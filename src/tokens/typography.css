@@ -1,45 +1,40 @@
 /* ============================================================
-   TYPOGRAPHY
-   One typeface: monospace. Everything is mono — headings, body,
-   code. This is the core of the brand's voice: technical, even,
-   typewriter-precise. Weight and size carry the hierarchy.
+   TYPOGRAPHY — Strict 2-family, 3-size body discipline.
+   Body sizes locked to 3 steps:
+     --text-heading  (section h2 titles)
+     --text-body     (all prose, lists, h3 titles, buttons, controls)
+     --text-sm       (mono labels, metadata, dates, captions; 14px)
+   The page title is the only larger size, and stays modest:
+   this is a profile, not a landing page.
    ============================================================ */
 
 :root {
-  /* --- Families -------------------------------------------- */
-  --font-mono: 'Courier Prime', 'Courier New', ui-monospace,
-               'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo,
-               Consolas, monospace;
-  /* Single-family system. Aliases below keep call sites semantic. */
-  --font-display: var(--font-mono);
-  --font-body:    var(--font-mono);
-  --font-code:    var(--font-mono);
+  /* Matched 2-family technical pairing */
+  --font-display: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* --- Weights --------------------------------------------- */
+  /* Page title & navbar brand (exempt from 3-size body scale) */
+  --text-page-title: clamp(2.125rem, 4.4vw, 3.125rem);
+  --text-brand: 1.0625rem;
+
+  /* Locked 3-size body scale */
+  --text-heading: 1.5rem;
+  --text-body: 1.0625rem;
+  --text-sm: 0.875rem;
+
+  /* Weights */
   --weight-regular: 400;
-  --weight-bold:    700;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
 
-  /* --- Type scale (px) ------------------------------------- */
-  /* Mirrors the site's Tailwind scale: 7xl name, 4xl tagline … */
-  --size-display: 72px;  /* hero name            (text-7xl) */
-  --size-h1:      48px;  /* page title           (text-5xl) */
-  --size-h2:      36px;  /* section, tagline     (text-4xl) */
-  --size-h3:      30px;  /* subsection           (text-3xl) */
-  --size-lead:    24px;  /* lead / large list    (text-2xl) */
-  --size-body:    16px;  /* default body         (text-base) */
-  --size-sm:      14px;  /* secondary            (text-sm) */
-  --size-xs:      12px;  /* caption / label      (text-xs) */
+  /* Line heights */
+  --leading-tight: 1.14;
+  --leading-snug: 1.35;
+  --leading-body: 1.65;
 
-  /* --- Line heights ---------------------------------------- */
-  --leading-tight:   1.1;   /* display / headings */
-  --leading-snug:    1.3;
-  --leading-normal:  1.6;   /* body */
-  --leading-relaxed: 1.8;
-
-  /* --- Tracking -------------------------------------------- */
-  /* Mono is wide already; headings tighten, labels open up. */
-  --tracking-tight:  -0.02em;
+  /* Tracking */
+  --tracking-tight: -0.025em;
   --tracking-normal: 0;
-  --tracking-wide:   0.08em;   /* uppercase labels, eyebrows */
-  --tracking-wider:  0.18em;   /* monogram / brand lockup */
 }
